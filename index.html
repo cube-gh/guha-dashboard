@@ -220,6 +220,20 @@ body.locked #gate{display:flex;min-height:100vh;align-items:center;justify-conte
 #q::placeholder{font-size:12px;letter-spacing:.2px;color:var(--sub);opacity:.8}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .25s;z-index:60}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.cat{padding-bottom:14px}
+.cat h3{margin-bottom:0;cursor:pointer;user-select:none;border-radius:10px;padding:2px 0}
+body.edit .cat h3{cursor:grab}
+.cat h3 .cnt{font-size:11px;font-weight:500;color:var(--sub);background:var(--hover);border:1px solid var(--line);border-radius:999px;padding:0 7px;line-height:18px}
+.cat h3 .chev{width:7px;height:7px;border-right:1.5px solid var(--sub);border-bottom:1.5px solid var(--sub);transform:rotate(45deg) translateY(-2px);transition:transform .3s;margin:0 6px 0 4px;flex:none}
+.cat.open h3 .chev{transform:rotate(-135deg) translate(-2px,0)}
+body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
+.cbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s cubic-bezier(.2,.8,.2,1)}
+.cat.open .cbody,body.edit .cbody{grid-template-rows:1fr}
+.cin{overflow:hidden;min-height:0}
+.cin .sites{padding-top:8px}
+.cin .sites{opacity:0;transform:translateY(-6px);transition:opacity .3s,transform .38s}
+.cat.open .cin .sites,body.edit .cin .sites{opacity:1;transform:none}
+.cats{align-items:start}
 </style>
 </head>
 <body class="locked">
@@ -571,16 +585,28 @@ document.addEventListener('keydown', e => {
 
 /* 즐겨찾기 */
 function fav(url){ try{ return 'https://www.google.com/s2/favicons?sz=64&domain=' + new URL(url).hostname; }catch(e){ return ''; } }
+let openCat = -1; // 펼쳐진 카테고리 (한 번에 하나만)
+function setOpenCat(ci){
+  openCat = ci;
+  document.querySelectorAll('#cats .cat').forEach(c => { const on = +c.dataset.ci === ci; c.classList.toggle('open', on); c.querySelector('h3').setAttribute('aria-expanded', on); });
+}
 function renderCats(){
   const box = $('cats'); box.innerHTML = '';
   S.cats.forEach((c, ci) => {
-    const card = el('div', 'card cat'); card.dataset.ci = ci;
+    const card = el('div', 'card cat' + (openCat === ci ? ' open' : '')); card.dataset.ci = ci;
     card.style.setProperty('--tint', `var(--p${ci % 5 + 1})`);
     const h = el('h3'); h.append(el('span', 'name', c.name));
     const mk = (t, title, fn) => { const b = el('button', 'ib edit-only', t); b.title = title; b.onclick = fn; return b; };
     h.append(mk('✎', '이름 바꾸기', () => { const n = prompt('카테고리 이름', c.name); if (n && n.trim()){ c.name = n.trim(); save(); renderCats(); } }));
     h.append(mk('🗑', '카테고리 삭제', () => { if (confirm(`'${c.name}' 카테고리와 안의 사이트를 모두 지울까요?`)){ S.cats.splice(ci, 1); save(); renderCats(); } }));
+    const cnt = el('span', 'cnt', c.sites.length); const chev = el('i', 'chev');
+    h.append(cnt, chev);
+    h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', openCat === ci);
+    const toggle = ev => { if (isEdit() || ev.target.closest('.ib')) return; setOpenCat(openCat === ci ? -1 : ci); };
+    h.addEventListener('click', toggle);
+    h.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggle(ev); } });
     card.append(h);
+    const body = el('div', 'cbody'), inner = el('div', 'cin'); body.append(inner);
     const list = el('div', 'sites'); list.dataset.ci = ci;
     c.sites.forEach((st, si) => {
       const a = el('a', 'site'); a.href = st.url; a.target = '_blank'; a.rel = 'noopener'; a.title = st.url;
@@ -593,10 +619,10 @@ function renderCats(){
       a.append(dot, el('span', null, st.name), ed, x);
       list.append(a);
     });
-    card.append(list);
+    inner.append(list);
     mkSort(list, { group:'sites', filter:'.x, .ed', preventOnFilter:false, onEnd: syncSites });
     const add = el('button', 'addsite edit-only', '+ 사이트 추가'); add.onclick = () => openSite(ci);
-    card.append(add);
+    inner.append(add); card.append(body);
     box.append(card);
   });
   const addCat = el('div', 'card add', '+ 카테고리 추가');
