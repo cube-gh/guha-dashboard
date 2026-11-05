@@ -234,6 +234,10 @@ body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
 .cin .sites{opacity:0;transform:translateY(-6px);transition:opacity .3s,transform .38s}
 .cat.open .cin .sites,body.edit .cin .sites{opacity:1;transform:none}
 .cats{align-items:start}
+/* 검색처·뉴스 주제 버튼 글씨를 더 진하게 */
+#engines .chip,.news .topics .chip{color:var(--ink);font-weight:600;border-color:color-mix(in srgb,var(--line) 55%,var(--sub))}
+#engines .chip:hover,.news .topics .chip:hover{border-color:var(--accent)}
+#engines .chip.on,.news .topics .chip.on{color:#fff;border-color:var(--accent)}
 </style>
 </head>
 <body class="locked">
