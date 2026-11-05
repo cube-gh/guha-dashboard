@@ -218,6 +218,8 @@ body.locked #gate{display:flex;min-height:100vh;align-items:center;justify-conte
 .site span{font-family:var(--retro-font);font-size:12px;color:var(--retro-ink);letter-spacing:0;-webkit-font-smoothing:none;font-smooth:never}
 .clock small{font-size:.5em;font-weight:400;letter-spacing:0;margin-right:5px;color:var(--sub)}
 #q::placeholder{font-size:12px;letter-spacing:.2px;color:var(--sub);opacity:.8}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .25s;z-index:60}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body class="locked">
@@ -691,16 +693,39 @@ $('siteDlg').addEventListener('close', () => {
 /* 편집·백업 */
 $('editBtn').onclick = () => { const on = document.body.classList.toggle('edit'); $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
   [SO.eng, SO.cats, SO.dock0, SO.dock1, ...PANELS.map(P => P.so)].forEach(x => x && x.option('disabled', !on)); renderCats(); };
-$('exportBtn').onclick = () => {
-  const blob = new Blob([JSON.stringify(S, null, 2)], { type:'application/json' });
+/* 백업: 저장·불러오기 창을 열 때 지난번에 고른 폴더(예: C:\004_dash_board)에서 시작
+   (웹페이지는 보안상 폴더를 직접 지정할 수 없어서, 처음 한 번 그 폴더를 골라 두면 다음부터 기억함) */
+const BK_PICK = { id:'guhaBackup', types:[{ description:'GUHA 대시보드 백업', accept:{ 'application/json':['.json'] } }] };
+function toast(m){ const d = el('div', 'toast', m); document.body.append(d); setTimeout(() => d.classList.add('show'), 10); setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 300); }, 2200); }
+function downloadBackup(json){
+  const blob = new Blob([json], { type:'application/json' });
   const a = el('a'); a.href = URL.createObjectURL(blob); a.download = 'dashboard-backup.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+$('exportBtn').onclick = async () => {
+  const json = JSON.stringify(S, null, 2);
+  if (window.showSaveFilePicker){
+    try{
+      const h = await showSaveFilePicker({ ...BK_PICK, suggestedName:'dashboard-backup.json' });
+      const w = await h.createWritable(); await w.write(json); await w.close();
+      toast('백업을 저장했어요 · ' + h.name); return;
+    }catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  downloadBackup(json);
 };
-$('importBtn').onclick = () => $('importFile').click();
+function applyBackup(text){
+  try{ const v = JSON.parse(text); if (!Array.isArray(v.cats)) throw 0; S = fill(v); save(); renderAll(); toast('백업을 불러왔어요.'); }
+  catch(err){ alert('백업 파일 형식이 맞지 않아요.'); }
+}
+$('importBtn').onclick = async () => {
+  if (window.showOpenFilePicker){
+    try{ const [h] = await showOpenFilePicker(BK_PICK); applyBackup(await (await h.getFile()).text()); return; }
+    catch(err){ if (err && err.name === 'AbortError') return; }
+  }
+  $('importFile').click();
+};
 $('importFile').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
-  try{ const v = JSON.parse(await f.text()); if (!Array.isArray(v.cats)) throw 0; S = fill(v); save(); renderAll(); alert('불러왔어요.'); }
-  catch(err){ alert('백업 파일 형식이 맞지 않아요.'); }
-  e.target.value = '';
+  applyBackup(await f.text()); e.target.value = '';
 };
 
 /* 뉴스 (구글 뉴스 RSS) — 두 개의 뉴스존 */
