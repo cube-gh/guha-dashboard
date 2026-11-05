@@ -244,7 +244,6 @@ body.locked #gate{display:flex;min-height:100vh;align-items:center;justify-conte
       <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
       <button class="btn edit-only" id="exportBtn">백업 저장</button>
       <button class="btn edit-only" id="importBtn">백업 불러오기</button>
-      <button class="btn danger edit-only" id="resetBtn">초기화</button>
       <button class="btn" id="editBtn">편집</button>
       <input type="file" id="importFile" accept=".json" hidden>
     </div>
@@ -687,7 +686,6 @@ $('importFile').onchange = async e => {
   catch(err){ alert('백업 파일 형식이 맞지 않아요.'); }
   e.target.value = '';
 };
-$('resetBtn').onclick = () => { if (confirm('처음 상태로 되돌릴까요? (지금 목록은 사라져요)')){ S = JSON.parse(JSON.stringify(DEFAULT)); save(); renderAll(); } };
 
 /* 뉴스 (구글 뉴스 RSS) — 두 개의 뉴스존 */
 const NKEY = 'myDash.news';
