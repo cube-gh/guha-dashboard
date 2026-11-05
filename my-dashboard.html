@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>나의 대시보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<style>
+:root{
+  --bg:#f7f4f1;--card:#fffdfb;--ink:#3b3644;--sub:#8c8596;--line:#ece6e1;
+  --accent:#a394c9;--accent-strong:#8a7ab8;--accent-soft:#f1edf8;--danger:#c98686;
+  --p1:#eef2fa;--p2:#fbeff1;--p3:#edf5f0;--p4:#fcf5e6;--p5:#f3eef9;
+  --hover:rgba(255,255,255,.75);
+  --shadow:0 1px 2px rgba(90,70,110,.04),0 10px 30px rgba(90,70,110,.07);
+  --blob1:#efe6f7;--blob2:#e4eef8;--blob3:#fbe9ec;--logo-a:#8a7ab8;--logo-b:#c98aa0}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1b1a20;--card:#24232b;--ink:#ece8f2;--sub:#a29cad;--line:#34323d;
+  --accent:#b8aade;--accent-strong:#c9bdea;--accent-soft:#2f2b3d;--danger:#e2a0a0;
+  --p1:#252a35;--p2:#30262b;--p3:#232e29;--p4:#302c22;--p5:#2b2635;
+  --hover:rgba(255,255,255,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.25);
+  --blob1:#2a2338;--blob2:#1f2736;--blob3:#30232a;--logo-a:#cdc1ee;--logo-b:#efb9c8}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;line-height:1.5;
+  background:radial-gradient(900px 500px at 8% -5%,var(--blob1),transparent 60%),radial-gradient(800px 500px at 100% 10%,var(--blob2),transparent 60%),radial-gradient(700px 500px at 50% 110%,var(--blob3),transparent 60%),var(--bg);background-attachment:fixed}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:block;line-height:0}
+.logo{height:62px;width:auto;display:block}
+.when{text-align:right;padding-right:14px;margin-right:6px;border-right:1px solid var(--line)}
+.clock{font-size:26px;font-weight:300;letter-spacing:-.5px;color:var(--accent-strong);font-variant-numeric:tabular-nums;line-height:1.1}
+.date{color:var(--sub);font-size:12px;margin-top:3px;letter-spacing:.2px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:999px;transition:all .2s;font-size:13px;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent-strong)}
+.btn.danger{color:var(--danger)}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.edit-only{display:none!important}
+body.edit .edit-only{display:inline-flex!important}
+body.edit .card.add{display:flex!important}
+.search{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:22px}
+.engines{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--sub);padding:5px 12px;border-radius:999px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.chip:hover{color:var(--ink);background:var(--accent-soft)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip .del{display:none;font-size:12px;opacity:.8}
+body.edit .chip .del{display:inline}
+.sbox{display:flex;gap:8px}
+.sbox input{flex:1;min-width:0;font-size:17px;padding:13px 18px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);outline:none;font-family:inherit}
+.sbox input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.sbox .btn{padding:0 22px;font-size:15px}
+.hint{color:var(--sub);font-size:12px;margin-top:8px}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:880px){.grid{grid-template-columns:1fr}.logo{height:50px}.when{border-right:none;margin-right:0}}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{--tint:var(--card);background:var(--tint);border:1px solid var(--line);border-radius:22px;padding:16px 12px 10px;box-shadow:var(--shadow);transition:transform .2s}
+.cats .card:hover{transform:translateY(-2px)}
+.card h3{margin:0 0 8px 6px;font-size:15px;font-weight:600;letter-spacing:-.2px;display:flex;align-items:center;gap:6px}
+.card h3 .name{flex:1}
+.ib{border:none;background:transparent;color:var(--sub);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:6px}
+.ib:hover{background:var(--hover);color:var(--ink)}
+.sites{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.site{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:14px;min-width:0}
+.site:hover{background:var(--hover)}
+.site .dot{width:7px;height:7px;border-radius:50%;flex:none;margin:0 3px;background:#4caf7d;box-shadow:0 0 0 3px rgba(76,175,125,.15);transition:background .2s,box-shadow .2s,transform .2s}
+.site:hover .dot{background:#e0555a;box-shadow:0 0 0 3px rgba(224,85,90,.18);transform:scale(1.15)}
+.site span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.site .x{display:none;border:none;background:transparent;color:var(--danger);cursor:pointer;font-size:14px;padding:0 2px}
+body.edit .site .x{display:inline}
+.site .ed{display:none;border:none;background:transparent;color:var(--sub);cursor:pointer;font-size:13px;padding:0 2px}
+.site .ed:hover{color:var(--accent-strong)}
+body.edit .site .ed{display:inline}
+.addsite{margin-top:6px;width:100%;border:1px dashed var(--line);background:transparent;color:var(--sub);padding:6px;border-radius:10px;cursor:pointer;font-family:inherit}
+.card.add{display:none;align-items:center;justify-content:center;border-style:dashed;color:var(--sub);cursor:pointer;min-height:120px}
+.newscol{display:flex;flex-direction:column;gap:16px;min-width:0}
+.news{background:var(--card)}
+.news-head{display:flex;align-items:center;justify-content:space-between;margin:0 4px 8px}
+.news-head h2{font-size:15px;margin:0;display:flex;align-items:center;gap:4px}
+.nh-r{display:flex;align-items:center;gap:6px}
+.rot{font-size:12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);padding:3px 8px;font-family:inherit;cursor:pointer}
+.prog{height:2px;background:var(--line);border-radius:2px;margin:0 4px 6px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.more-li{border-top:none!important}
+.more{display:block!important;text-align:right;font-size:12px;color:var(--accent-strong)!important;padding:6px 4px 2px!important}
+.upd{color:var(--sub);font-size:12px}
+.topics{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.nlist{list-style:none;margin:0;padding:0}
+.nlist li{border-top:1px solid var(--line)}
+.nlist li:first-child{border-top:none}
+.nlist a{display:block;padding:9px 4px;color:var(--ink);text-decoration:none}
+.nlist a:hover .t{color:var(--accent-strong)}
+.nlist .t{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nlist .m{font-size:12px;color:var(--sub);margin-top:2px}
+.msg{color:var(--sub);font-size:13px;padding:16px 4px}
+dialog{border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);background:var(--card);color:var(--ink);padding:20px;width:min(380px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog h3{margin:0 0 12px;font-size:16px}
+dialog label{display:block;font-size:13px;color:var(--sub);margin:10px 0 4px}
+dialog input,dialog select{width:100%;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit}
+dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+body.edit .card.cat h3,body.edit .site,body.edit .chip.topic,body.edit #engines .chip{cursor:grab}
+body.edit .cats .card:hover{transform:none}
+body.edit .sites{min-height:38px;border-radius:10px}
+body.edit .sites:empty{outline:1px dashed var(--line)}
+.ghost{opacity:.35}
+.chosen{box-shadow:0 0 0 2px var(--accent)!important}
+.drag-tip{display:none;background:var(--accent-soft);color:var(--accent-strong);border-radius:14px;padding:9px 14px;font-size:13px;margin-bottom:14px}
+body.edit .drag-tip{display:block}
+.main{position:relative}
+.dock{position:absolute;top:0;width:44px;z-index:5}
+.dock.l{left:-60px}.dock.r{right:-60px}
+.dock-items{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:44px}
+.dtile{position:relative;width:44px;height:44px;border-radius:15px;background:var(--tint);border:1px solid var(--line);display:grid;place-items:center;text-decoration:none;color:var(--accent-strong);transition:transform .18s,box-shadow .18s;flex:none;box-shadow:0 2px 8px rgba(90,70,110,.06)}
+.dtile:hover{transform:scale(1.1);box-shadow:var(--shadow)}
+.dtile b{font-size:17px;font-weight:600}
+.dtile img{position:absolute;width:24px;height:24px;border-radius:6px}
+.dtile.has-img b{visibility:hidden}
+.dtile .x{display:none;position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:12px;line-height:18px;padding:0;cursor:pointer}
+body.edit .dtile .x{display:block}
+body.edit .dtile{cursor:grab}
+body.edit .dock-items:empty{outline:1px dashed var(--line);border-radius:12px}
+.dadd{flex:none;margin-top:12px;width:44px;height:44px;border-radius:15px;border:1px dashed var(--sub);background:transparent;color:var(--sub);font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.tip{position:fixed;z-index:30;transform:translateY(-50%);background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);color:var(--accent-strong);font-size:13px;font-weight:500;padding:6px 14px;border-radius:999px;box-shadow:0 2px 10px rgba(90,70,110,.08);pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap}
+.tip.show{opacity:1}
+@media (min-width:901px){.wrap{padding-left:80px;padding-right:80px;max-width:1340px}}
+@media (max-width:900px){.dock{position:static;width:auto;display:flex;align-items:center;overflow-x:auto;padding:4px 2px 10px;margin-bottom:6px}.dock-items{flex-direction:row}.dadd{margin:0 0 0 12px}}
+.foot{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;text-align:right;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:15px;letter-spacing:1px;color:var(--sub)}
+.foot b{font-style:normal;font-weight:600;letter-spacing:2px;color:var(--accent-strong)}
+.linkbtn{border:none;background:none;padding:0;color:var(--accent-strong);font:inherit;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.linkbtn:hover{text-decoration:underline;text-underline-offset:3px}
+.sp-back{position:fixed;inset:0;background:rgba(40,30,60,.18);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.sp-back.open{opacity:1;pointer-events:auto}
+.spanel{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);background:var(--card);border-left:1px solid var(--line);box-shadow:-10px 0 40px rgba(90,70,110,.12);transform:translateX(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:41;display:flex;flex-direction:column;padding:22px 18px}
+.spanel.open{transform:none}
+.sp-head{display:flex;justify-content:space-between;align-items:center;margin:0 4px 14px}
+.sp-head h3{margin:0;font-size:16px;font-weight:600}
+.sp-list{list-style:none;margin:0;padding:0;flex:1;overflow:auto}
+.sp-list li{display:flex;align-items:center;border-radius:12px}
+.sp-list li:hover{background:var(--accent-soft)}
+.sp-item{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:none;background:none;padding:11px 10px;font:inherit;color:var(--ink);cursor:pointer;text-align:left}
+.sp-item img{width:18px;height:18px;border-radius:4px;flex:none}
+.sp-item .eng{font-size:12px;color:var(--sub);flex:none}
+.sp-item .q{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.sp-item .go{color:var(--sub);font-size:12px;flex:none}
+.sp-list .x{border:none;background:none;color:var(--danger);cursor:pointer;opacity:0;padding:6px 10px;font-size:14px}
+.sp-list li:hover .x{opacity:1}
+.sp-empty{color:var(--sub);font-size:13px;padding:14px 10px}
+.sp-add{display:flex;gap:6px;margin-top:12px;border-top:1px solid var(--line);padding-top:14px}
+.sp-add select,.sp-add input{border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:8px;font:inherit;font-size:13px;min-width:0}
+.sp-add input{flex:1}
+.sp-tip{font-size:11px;color:var(--sub);margin:8px 4px 0}
+.dhelp{font-size:12px;color:var(--sub);margin:10px 0 0;line-height:1.6}
+.dhelp b{color:var(--accent-strong)}
+.dhidden{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.dhidden:empty{display:none}
+.dlabel{width:100%;font-size:12px;color:var(--sub)}
+.derr{font-size:12px;color:var(--danger);margin:8px 0 0;line-height:1.6}
+.derr:empty{display:none}
+.icrow{display:flex;align-items:center;gap:10px}
+.icprev{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;flex:none}
+.icprev img{width:24px;height:24px}
+.icinfo{flex:1;font-size:13px;color:var(--sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icpick{margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--bg)}
+.icsearch{display:flex;gap:6px}
+.icsearch input{flex:1;min-width:0}
+.icgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:10px;max-height:180px;overflow:auto}
+.icgrid button{aspect-ratio:1;border:1px solid transparent;border-radius:10px;background:var(--card);cursor:pointer;display:grid;place-items:center;padding:0}
+.icgrid button:hover{border-color:var(--accent)}
+.icgrid button.on{border-color:var(--accent);background:var(--accent-soft)}
+.icgrid img{width:20px;height:20px}
+.icgrid .msg{grid-column:1/-1;padding:8px}
+.icfoot{display:flex;justify-content:space-between;margin-top:8px}
+.icnote{font-size:11px;color:var(--sub);margin-top:6px}
+dialog{max-height:92vh;overflow:auto}
+.qwrap{position:relative;flex:1;min-width:0;display:flex}
+.qwrap input{padding-right:44px!important}
+#q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+.qclear{position:absolute;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--sub);font-size:19px;line-height:1;cursor:pointer;padding:2px 4px;display:none;border-radius:6px}
+.qclear:hover{color:var(--danger);background:var(--accent-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#" aria-label="GUHA dashboard" onclick="return false">
+      <svg class="logo" viewBox="0 0 222 72" role="img" aria-label="GUHA dashboard">
+        <defs>
+          <linearGradient id="gEmb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cbbbee"/><stop offset=".55" stop-color="#f3c6d2"/><stop offset="1" stop-color="#bcd8f3"/></linearGradient>
+          <linearGradient id="gTxt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--logo-a)"/><stop offset="1" style="stop-color:var(--logo-b)"/></linearGradient>
+        </defs>
+        <rect x="4" y="8" width="56" height="56" rx="18" fill="url(#gEmb)"/>
+        <rect x="4.5" y="8.5" width="55" height="55" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".55"/>
+        <rect x="16" y="20" width="14" height="14" rx="4.5" fill="#fff" fill-opacity=".92"/>
+        <circle cx="41" cy="27" r="7" fill="#fff" fill-opacity=".7"/>
+        <rect x="16" y="38" width="14" height="14" rx="4.5" fill="#fff" fill-opacity=".7"/>
+        <rect x="34" y="38" width="14" height="14" rx="4.5" fill="#fff" fill-opacity=".92"/>
+        <text x="74" y="45" font-family="'Cormorant Garamond',Georgia,'Times New Roman',serif" font-size="42" font-weight="600" letter-spacing="3" fill="url(#gTxt)">GUHA</text>
+        <text x="76" y="63" font-family="'Cormorant Garamond',Georgia,serif" font-style="italic" font-size="16" letter-spacing="3.2" style="fill:var(--sub)">dashboard</text>
+      </svg>
+    </a>
+    <div class="toolbar">
+      <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
+      <button class="btn edit-only" id="exportBtn">백업 저장</button>
+      <button class="btn edit-only" id="importBtn">백업 불러오기</button>
+      <button class="btn danger edit-only" id="resetBtn">초기화</button>
+      <button class="btn" id="editBtn">편집</button>
+      <input type="file" id="importFile" accept=".json" hidden>
+    </div>
+  </header>
+
+  <div class="drag-tip">✋ 카테고리 제목, 사이트, 양옆 아이콘, 검색처(+ 로 추가, × 로 숨기기), 뉴스 주제를 끌어서 순서를 바꿀 수 있어요. 사이트와 아이콘을 누르면 이름·주소를 고칠 수 있어요. 사이트는 다른 카테고리로, 양옆 아이콘은 반대편 존으로도 옮길 수 있어요.</div>
+
+  <div class="main">
+  <nav class="dock l" id="dock0" aria-label="왼쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button></nav>
+  <section class="search">
+    <div class="engines" id="engines"></div>
+    <form class="sbox" id="sform">
+      <div class="qwrap"><input id="q" type="search" placeholder="검색어를 입력하세요" autocomplete="off" autofocus><button type="button" class="qclear" id="qClear" title="지우기" aria-label="검색어 지우기">×</button></div>
+    </form>
+    <div class="hint"><button type="button" class="linkbtn" id="savedOpen">☆ 자주 쓰는 검색어 목록</button></div>
+  </section>
+
+  <div class="grid">
+    <section class="cats" id="cats"></section>
+    <aside class="newscol">
+    <section class="card news" id="news0">
+      <div class="news-head">
+        <h2><span class="ntitle"></span><button class="ib edit-only rename" title="이름 바꾸기">✎</button></h2>
+        <div class="nh-r"><select class="rot edit-only" title="주제 자동 넘김 간격"></select><span class="upd"></span> <button class="ib refresh" title="새로고침">↻</button></div>
+      </div>
+      <div class="topics"></div>
+      <div class="prog"><i></i></div>
+      <ul class="nlist"></ul>
+    </section>
+    <section class="card news" id="news1">
+      <div class="news-head">
+        <h2><span class="ntitle"></span><button class="ib edit-only rename" title="이름 바꾸기">✎</button></h2>
+        <div class="nh-r"><select class="rot edit-only" title="주제 자동 넘김 간격"></select><span class="upd"></span> <button class="ib refresh" title="새로고침">↻</button></div>
+      </div>
+      <div class="topics"></div>
+      <div class="prog"><i></i></div>
+      <ul class="nlist"></ul>
+    </section>
+    </aside>
+  </div>
+  <nav class="dock r" id="dock1" aria-label="오른쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button></nav>
+  </div>
+  <footer class="foot">2026.11 Editor by <b>GUHA</b></footer>
+</div>
+<div class="sp-back" id="spBack"></div>
+<aside class="spanel" id="sp" aria-label="자주 쓰는 검색어 목록">
+  <div class="sp-head"><h3>자주 쓰는 검색어</h3><button class="ib" id="spClose" title="닫기 (Esc)">✕</button></div>
+  <ul class="sp-list" id="spList"></ul>
+  <form class="sp-add" id="spAdd"><select id="spEng" title="검색처"></select><input id="spQ" placeholder="검색어" required><button class="btn pri">추가</button></form>
+  <div class="sp-tip">누르면 새 탭에서 바로 검색돼요 · 끌어서 순서 변경 · × 삭제</div>
+</aside>
+<div id="tip" class="tip"></div>
+
+<dialog id="engDlg">
+  <form id="engForm">
+    <h3>검색처 추가</h3>
+    <label>이름</label>
+    <input id="eName" placeholder="예: 쿠팡" required>
+    <label>검색 결과 주소</label>
+    <input id="eUrl" placeholder="https://..." required>
+    <p class="dhelp">추가할 사이트에서 <b>GUHA</b>라고 검색한 뒤, 검색 결과 화면의 주소창 주소를 복사해서 붙여 넣으세요. DeepL·쿠팡·구글 번역처럼 자주 쓰는 사이트는 사이트 주소만 넣어도 자동으로 맞춰져요.</p>
+    <p class="derr" id="eErr"></p>
+    <div id="eHidden" class="dhidden"></div>
+    <div class="row">
+      <button class="btn" type="button" id="eCancel">취소</button>
+      <button class="btn pri" value="ok">추가</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="siteDlg">
+  <form method="dialog" id="siteForm">
+    <h3 id="sTitle">사이트 추가</h3>
+    <label>주소 (URL)</label>
+    <input id="fUrl" placeholder="예: naver.com" required>
+    <label>이름 (비우면 주소로 자동)</label>
+    <input id="fName" placeholder="예: 네이버">
+    <label>넣을 곳</label>
+    <select id="fCat"></select>
+    <label>아이콘</label>
+    <div class="icrow">
+      <span class="icprev"><img id="fIconPrev" alt=""></span>
+      <span class="icinfo" id="fIconInfo">사이트 로고 (기본)</span>
+      <button type="button" class="btn" id="icToggle">아이콘 고르기</button>
+    </div>
+    <div class="icpick" id="icPick" hidden>
+      <div class="icsearch">
+        <input id="icQ" placeholder="아이콘 찾기 (예: 책, 여행, book, deepl)">
+        <button type="button" class="btn" id="icGo">찾기</button>
+      </div>
+      <div class="icgrid" id="icGrid"></div>
+      <div class="icfoot">
+        <button type="button" class="linkbtn" id="icDefault">사이트 로고로 되돌리기</button>
+        <button type="button" class="linkbtn" id="icUrl">이미지 주소 직접 넣기</button>
+      </div>
+      <div class="icnote">무료 아이콘 모음(Iconify: Lucide·Tabler·Material·브랜드 로고)에서 불러와요.</div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="sCancel">취소</button>
+      <button class="btn pri" value="ok" id="sOk">추가</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const KEY = 'myDash.v1';
+const s = (n, u) => ({ name: n, url: u });
+const DEFAULT = {
+  engine: 'naver',
+  cats: [
+    { name: '자주 가는 곳', sites: [s('네이버','https://www.naver.com'), s('유튜브','https://www.youtube.com'), s('Gmail','https://mail.google.com'), s('기상청 날씨','https://www.weather.go.kr')] },
+    { name: 'AI·작업 도구', sites: [s('Claude','https://claude.ai'), s('GitHub','https://github.com'), s('Supabase','https://supabase.com'), s('구글 드라이브','https://drive.google.com')] },
+    { name: '여행·제주', sites: [s('비짓제주','https://www.visitjeju.net'), s('제주관광공사','https://ijto.or.kr'), s('대한민국 구석구석','https://korean.visitkorea.or.kr'), s('카카오맵','https://map.kakao.com')] },
+    { name: '역사·인문 공부', sites: [s('한국사DB','https://db.history.go.kr'), s('우리역사넷','https://contents.history.go.kr'), s('RISS 논문','https://www.riss.kr'), s('국립중앙도서관','https://www.nl.go.kr'), s('스탠퍼드 철학백과','https://plato.stanford.edu')] }
+  ],
+  topics: [
+    { name: 'IT·AI', q: '인공지능 OR 생성형AI' },
+    { name: '여행·관광', q: '여행업계 OR 관광업계' },
+    { name: '제주', q: '제주도' },
+    { name: '역사·인문', q: '역사학 OR 철학 OR 인문학' }
+  ],
+  topics2: [
+    { name: '주요 헤드라인', q: '' },
+    { name: '경제', q: '경제 OR 증시 OR 환율' },
+    { name: '교육', q: '교육부 OR 학교 OR 교사' },
+    { name: '문화·전시', q: '전시회 OR 공연 OR 문화행사' }
+  ],
+  newsTitles: ['실시간 뉴스', '오늘의 소식'],
+  rotate: [3, 3],
+  customEngines: [], hiddenEngines: [],
+  saved: [{ e:'youtube', q:'빔프로젝트' }, { e:'gimg', q:'제주도 여행' }, { e:'insta', q:'여행' }],
+  docks: [
+    [s('네이버','https://www.naver.com'), s('유튜브','https://www.youtube.com'), s('Gmail','https://mail.google.com'), s('Claude','https://claude.ai'), s('GitHub','https://github.com'), s('구글 드라이브','https://drive.google.com')],
+    [s('카카오맵','https://map.kakao.com'), s('파파고','https://papago.naver.com'), s('기상청 날씨','https://www.weather.go.kr'), s('비짓제주','https://www.visitjeju.net'), s('한국사DB','https://db.history.go.kr'), s('RISS 논문','https://www.riss.kr')]
+  ]
+};
+function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; return v; }
+const ENGINES = [
+  { id:'naver', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
+  { id:'google', name:'구글', url:'https://www.google.com/search?q=' },
+  { id:'daum', name:'다음', url:'https://search.daum.net/search?q=' },
+  { id:'youtube', name:'유튜브', url:'https://www.youtube.com/results?search_query=' },
+  { id:'namu', name:'나무위키', url:'https://namu.wiki/Search?q=' },
+  { id:'wiki', name:'위키백과', url:'https://ko.wikipedia.org/w/index.php?search=' },
+  { id:'scholar', name:'구글 학술', url:'https://scholar.google.com/scholar?q=' },
+  { id:'riss', name:'RISS 논문', url:'https://www.riss.kr/search/Search.do?isDetailSearch=N&searchGubun=true&query=' },
+  { id:'news', name:'뉴스', url:'https://search.naver.com/search.naver?where=news&query=' },
+  { id:'map', name:'카카오맵', url:'https://map.kakao.com/?q=' },
+  { id:'dict', name:'영어사전', url:'https://en.dict.naver.com/#/search?query=' },
+  { id:'papago', name:'번역', url:'https://papago.naver.com/?sk=auto&tk=ko&st=' }
+];
+
+let S = fill(load());
+function load(){ try{ const v = JSON.parse(localStorage.getItem(KEY)); if (v && Array.isArray(v.cats)) return v; }catch(e){} return JSON.parse(JSON.stringify(DEFAULT)); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const $ = id => document.getElementById(id);
+const isEdit = () => document.body.classList.contains('edit');
+const SO = {};
+function mkSort(elm, opts){ return window.Sortable ? Sortable.create(elm, Object.assign({ animation:180, ghostClass:'ghost', chosenClass:'chosen', disabled:!isEdit() }, opts)) : null; }
+function engPool(){ return [...ENGINES, ...S.customEngines]; }
+function engList(){
+  const pool = engPool().filter(e => !S.hiddenEngines.includes(e.id)), o = S.engineOrder || [];
+  return [...o.map(id => pool.find(e => e.id === id)).filter(Boolean), ...pool.filter(e => !o.includes(e.id))];
+}
+function engUrl(en, q){ const v = encodeURIComponent(q); return en.url.includes('%s') ? en.url.split('%s').join(v) : en.url + v; }
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+/* 시계 */
+function tick(){
+  const d = new Date();
+  $('clock').textContent = d.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', hour12:false });
+  $('date').textContent = d.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+}
+tick(); setInterval(tick, 10000);
+
+/* 검색 */
+function renderEngines(){
+  const box = $('engines'); box.innerHTML = '';
+  const L = engList();
+  if (!L.find(e => e.id === S.engine)) S.engine = L[0].id;
+  L.forEach(en => {
+    const b = el('button', 'chip eng' + (S.engine === en.id ? ' on' : ''), en.name);
+    b.type = 'button'; b.dataset.id = en.id; b.title = en.custom ? '직접 추가한 검색처' : '';
+    const d = el('span', 'del', '×'); d.title = en.custom ? '삭제' : '숨기기';
+    d.onclick = ev => {
+      ev.stopPropagation();
+      if (engList().length < 2){ alert('검색처는 하나 이상 남겨 두어야 해요.'); return; }
+      if (en.custom){ if (!confirm(`'${en.name}' 검색처를 지울까요?`)) return; S.customEngines = S.customEngines.filter(x => x.id !== en.id); }
+      else S.hiddenEngines.push(en.id);
+      save(); renderEngines(); refreshSpEng();
+    };
+    b.append(d);
+    b.onclick = () => {
+      S.engine = en.id; save(); renderEngines();
+      if (!isEdit() && $('q').value.trim()) $('sform').requestSubmit(); else $('q').focus();
+    };
+    box.append(b);
+  });
+  const add = el('button', 'chip edit-only', '+ 검색처'); add.type = 'button'; add.onclick = openEngDlg;
+  box.append(add);
+  const cur = L.find(e => e.id === S.engine) || L[0];
+  $('q').placeholder = cur.name + '에서 검색';
+}
+function renderHiddenEngines(){
+  const box = $('eHidden'); box.innerHTML = '';
+  const hid = ENGINES.filter(e => S.hiddenEngines.includes(e.id)); if (!hid.length) return;
+  box.append(el('span', 'dlabel', '숨긴 기본 검색처 (누르면 다시 보여요)'));
+  hid.forEach(en => { const b = el('button', 'chip', '+ ' + en.name); b.type = 'button';
+    b.onclick = () => { S.hiddenEngines = S.hiddenEngines.filter(x => x !== en.id); save(); renderEngines(); refreshSpEng(); renderHiddenEngines(); };
+    box.append(b); });
+}
+function openEngDlg(){ engErr(''); $('eName').value = ''; $('eUrl').value = ''; renderHiddenEngines(); $('engDlg').showModal(); $('eName').focus(); }
+/* 주소에 검색어가 안 보이거나 찾기 어려운 사이트는 주소만 넣어도 자동으로 맞춰 줌 */
+const ENGINE_PRESETS = {
+  'deepl.com': 'https://www.deepl.com/ko/translator#auto/ko/%s',
+  'translate.google.com': 'https://translate.google.com/?sl=auto&tl=ko&text=%s',
+  'papago.naver.com': 'https://papago.naver.com/?sk=auto&tk=ko&st=%s',
+  'dict.naver.com': 'https://ko.dict.naver.com/#/search?query=%s',
+  'shopping.naver.com': 'https://search.shopping.naver.com/search/all?query=%s',
+  'map.naver.com': 'https://map.naver.com/p/search/%s',
+  'coupang.com': 'https://www.coupang.com/np/search?q=%s',
+  'danawa.com': 'https://search.danawa.com/dsearch.php?query=%s',
+  'kyobobook.co.kr': 'https://search.kyobobook.co.kr/search?keyword=%s',
+  'yes24.com': 'https://www.yes24.com/Product/Search?query=%s',
+  'aladin.co.kr': 'https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=%s',
+  'pinterest.com': 'https://www.pinterest.com/search/pins/?q=%s',
+  'pinterest.co.kr': 'https://www.pinterest.com/search/pins/?q=%s',
+  'x.com': 'https://x.com/search?q=%s',
+  'twitter.com': 'https://x.com/search?q=%s',
+  'github.com': 'https://github.com/search?q=%s',
+  'amazon.com': 'https://www.amazon.com/s?k=%s',
+  'perplexity.ai': 'https://www.perplexity.ai/search?q=%s',
+  'open.spotify.com': 'https://open.spotify.com/search/%s'
+};
+function presetFor(url){
+  let h; try{ h = new URL(url).hostname.replace(/^www\./, ''); }catch(e){ return null; }
+  const k = Object.keys(ENGINE_PRESETS).find(d => h === d || h.endsWith('.' + d));
+  return k ? ENGINE_PRESETS[k] : null;
+}
+function engErr(m){ $('eErr').textContent = m; }
+$('engForm').onsubmit = ev => {
+  ev.preventDefault(); engErr('');
+  const name = $('eName').value.trim(); let url = $('eUrl').value.trim(); if (!name || !url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  if (/GUHA/i.test(url)) url = url.replace(/GUHA/gi, '%s');
+  else url = presetFor(url) || url;
+  if (!url.includes('%s')){
+    engErr("주소에 'GUHA'가 들어 있지 않아요. 그 사이트에서 GUHA로 검색한 뒤, 결과 화면의 주소를 붙여 넣어 주세요. 검색어가 주소에 나타나지 않는 사이트는 검색처로 쓸 수 없어서 '사이트 추가'로 넣어야 해요.");
+    $('eUrl').focus(); return;
+  }
+  const id = 'c' + Date.now().toString(36);
+  S.customEngines.push({ id, name, url, custom:true }); S.engine = id; save();
+  $('engDlg').close(); renderEngines(); refreshSpEng();
+};
+$('eCancel').onclick = () => $('engDlg').close();
+$('sCancel').onclick = () => $('siteDlg').close();
+$('sform').onsubmit = e => {
+  e.preventDefault();
+  const q = $('q').value.trim(); if (!q) return;
+  const L = engList(); const en = L.find(x => x.id === S.engine) || L[0];
+  window.open(engUrl(en, q), '_blank', 'noopener');
+};
+
+/* 검색어 바로 뒤(두 칸 띄고)에 붙는 지우기 버튼 */
+const qMeasure = document.createElement('canvas').getContext('2d');
+function placeClear(){
+  const inp = $('q'), btn = $('qClear'), v = inp.value;
+  if (!v){ btn.style.display = 'none'; return; }
+  const cs = getComputedStyle(inp); qMeasure.font = cs.font;
+  const x = parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft) + qMeasure.measureText(v + '  ').width - inp.scrollLeft;
+  btn.style.display = 'block';
+  btn.style.left = Math.min(x, inp.offsetWidth - btn.offsetWidth - 14) + 'px';
+}
+['input', 'keyup', 'focus', 'scroll'].forEach(ev => $('q').addEventListener(ev, placeClear));
+window.addEventListener('resize', placeClear);
+if (document.fonts) document.fonts.ready.then(placeClear);
+$('qClear').onclick = () => { $('q').value = ''; placeClear(); $('q').focus(); };
+$('q').addEventListener('keydown', e => {
+  if (e.key === 'Tab' && !e.shiftKey){
+    e.preventDefault();
+    const L = engList(); const i = L.findIndex(x => x.id === S.engine);
+    S.engine = L[(i + 1) % L.length].id; save(); renderEngines();
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){ e.preventDefault(); $('q').focus(); }
+});
+
+/* 즐겨찾기 */
+function fav(url){ try{ return 'https://www.google.com/s2/favicons?sz=64&domain=' + new URL(url).hostname; }catch(e){ return ''; } }
+function renderCats(){
+  const box = $('cats'); box.innerHTML = '';
+  S.cats.forEach((c, ci) => {
+    const card = el('div', 'card cat'); card.dataset.ci = ci;
+    card.style.setProperty('--tint', `var(--p${ci % 5 + 1})`);
+    const h = el('h3'); h.append(el('span', 'name', c.name));
+    const mk = (t, title, fn) => { const b = el('button', 'ib edit-only', t); b.title = title; b.onclick = fn; return b; };
+    h.append(mk('✎', '이름 바꾸기', () => { const n = prompt('카테고리 이름', c.name); if (n && n.trim()){ c.name = n.trim(); save(); renderCats(); } }));
+    h.append(mk('🗑', '카테고리 삭제', () => { if (confirm(`'${c.name}' 카테고리와 안의 사이트를 모두 지울까요?`)){ S.cats.splice(ci, 1); save(); renderCats(); } }));
+    card.append(h);
+    const list = el('div', 'sites'); list.dataset.ci = ci;
+    c.sites.forEach((st, si) => {
+      const a = el('a', 'site'); a.href = st.url; a.target = '_blank'; a.rel = 'noopener'; a.title = st.url;
+      a.dataset.ci = ci; a.dataset.si = si; a.addEventListener('click', ev => { if (isEdit()){ ev.preventDefault(); openSite(null, { kind:'c', list:ci, i:si }); } });
+      const dot = el('i', 'dot');
+      const x = el('button', 'x', '×'); x.title = '삭제';
+      x.onclick = ev => { ev.preventDefault(); c.sites.splice(si, 1); save(); renderCats(); };
+      const ed = el('button', 'ed', '✎'); ed.title = '이름·주소 수정';
+      ed.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); openSite(null, { kind:'c', list:ci, i:si }); };
+      a.append(dot, el('span', null, st.name), ed, x);
+      list.append(a);
+    });
+    card.append(list);
+    mkSort(list, { group:'sites', filter:'.x, .ed', preventOnFilter:false, onEnd: syncSites });
+    const add = el('button', 'addsite edit-only', '+ 사이트 추가'); add.onclick = () => openSite(ci);
+    card.append(add);
+    box.append(card);
+  });
+  const addCat = el('div', 'card add', '+ 카테고리 추가');
+  addCat.onclick = () => { const n = prompt('새 카테고리 이름'); if (n && n.trim()){ S.cats.push({ name:n.trim(), sites:[] }); save(); renderCats(); } };
+  box.append(addCat);
+}
+function syncSites(){
+  const old = S.cats.map(c => c.sites);
+  $('cats').querySelectorAll('.sites').forEach(l => { S.cats[+l.dataset.ci].sites = [...l.children].map(a => old[+a.dataset.ci][+a.dataset.si]); });
+  save(); renderCats();
+}
+
+/* 무료 아이콘 (Iconify) */
+const IC_COLOR = '%238a7ab8';
+const IC_DEFAULT = 'home,book-open,graduation-cap,school,library,landmark,scroll,feather,map,map-pin,plane,tree-palm,mountain,waves,tent,hotel,ship,bus,car,ticket,camera,image,video,music,tv,newspaper,globe,languages,search,mail,message-circle,phone,calendar,cloud-sun,umbrella,sun,shopping-cart,store,wallet,briefcase,laptop,bot,sparkles,file-text,folder,pen-tool,coffee,utensils,gamepad-2,dumbbell,flower-2,castle,church,star,heart,bookmark'.split(',').map(n => 'lucide:' + n);
+const IC_KO = { '집':'home','홈':'home','책':'book','도서':'book','도서관':'library','학교':'school','교육':'school','공부':'education','역사':'history','철학':'philosophy','여행':'plane','비행기':'plane','지도':'map','바다':'beach','산':'mountain','캠핑':'tent','호텔':'hotel','배':'ship','버스':'bus','자동차':'car','사진':'camera','영상':'video','음악':'music','뉴스':'newspaper','신문':'newspaper','메일':'mail','전화':'phone','달력':'calendar','일정':'calendar','날씨':'weather','쇼핑':'shopping','가게':'store','돈':'money','은행':'bank','회사':'briefcase','컴퓨터':'computer','노트북':'laptop','인공지능':'robot','번역':'translate','사전':'dictionary','커피':'coffee','음식':'food','게임':'game','운동':'fitness','꽃':'flower','교회':'church','절':'temple','박물관':'museum','미술':'palette','그림':'palette','별':'star','하트':'heart','사람':'user','파일':'file','폴더':'folder','글쓰기':'pen','편지':'mail','영화':'movie','논문':'article','과학':'flask','건강':'health','병원':'hospital' };
+function iconSrc(st){
+  const ic = st && st.icon;
+  if (ic && ic.startsWith('iconify:')){ const [pre, name] = ic.slice(8).split(':'); return `https://api.iconify.design/${pre}/${name}.svg?color=${IC_COLOR}`; }
+  if (ic) return ic;
+  return fav(st.url);
+}
+let pickIcon = '';
+function showIconPrev(){
+  $('fIconPrev').src = iconSrc({ url: /^https?:/i.test($('fUrl').value) ? $('fUrl').value : 'https://' + ($('fUrl').value || 'example.com'), icon: pickIcon });
+  $('fIconInfo').textContent = !pickIcon ? '사이트 로고 (기본)' : pickIcon.startsWith('iconify:') ? '무료 아이콘 · ' + pickIcon.slice(8) : '직접 넣은 이미지';
+  $('icGrid').querySelectorAll('button').forEach(b => b.classList.toggle('on', 'iconify:' + b.dataset.ic === pickIcon));
+}
+function fillIconGrid(list){
+  const g = $('icGrid'); g.innerHTML = '';
+  if (!list.length){ g.append(el('div', 'msg', '찾는 아이콘이 없어요. 다른 낱말(영어도 좋아요)로 찾아보세요.')); return; }
+  list.forEach(id => {
+    const b = el('button'); b.type = 'button'; b.dataset.ic = id; b.title = id;
+    const img = el('img'); img.alt = ''; img.loading = 'lazy'; const [pre, name] = id.split(':');
+    img.src = `https://api.iconify.design/${pre}/${name}.svg?color=${IC_COLOR}`;
+    b.append(img); b.onclick = () => { pickIcon = 'iconify:' + id; showIconPrev(); };
+    g.append(b);
+  });
+  showIconPrev();
+}
+async function searchIcons(){
+  let q = $('icQ').value.trim(); if (!q){ fillIconGrid(IC_DEFAULT); return; }
+  q = IC_KO[q] || q;
+  const g = $('icGrid'); g.innerHTML = ''; g.append(el('div', 'msg', '찾는 중…'));
+  try{
+    const j = await (await tfetch('https://api.iconify.design/search?limit=64&prefixes=lucide,tabler,mdi,ph,simple-icons&query=' + encodeURIComponent(q))).json();
+    fillIconGrid(j.icons || []);
+  }catch(e){ g.innerHTML = ''; g.append(el('div', 'msg', '아이콘을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.')); }
+}
+$('icToggle').onclick = () => { const pk = $('icPick'); pk.hidden = !pk.hidden; if (!pk.hidden && !$('icGrid').children.length) fillIconGrid(IC_DEFAULT); };
+$('icGo').onclick = searchIcons;
+$('icQ').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); searchIcons(); } });
+$('icDefault').onclick = () => { pickIcon = ''; showIconPrev(); };
+$('icUrl').onclick = () => { const u = prompt('아이콘 이미지 주소 (https://로 시작하는 png·svg 등)', pickIcon.startsWith('http') ? pickIcon : ''); if (u && /^https?:\/\//i.test(u.trim())){ pickIcon = u.trim(); showIconPrev(); } };
+$('fUrl').addEventListener('input', showIconPrev);
+$('fIconPrev').onerror = () => $('fIconPrev').style.visibility = 'hidden';
+$('fIconPrev').onload = () => $('fIconPrev').style.visibility = '';
+
+let siteEdit = null; // 수정 중인 사이트 위치 { kind:'c'|'d', list, i }
+function openSite(ci, edit){
+  siteEdit = edit || null;
+  const sel = $('fCat'); sel.innerHTML = '';
+  S.cats.forEach((c, i) => { const o = el('option', null, c.name); o.value = 'c:' + i; sel.append(o); });
+  [['d:0','◀ 왼쪽 아이콘 존'], ['d:1','오른쪽 아이콘 존 ▶']].forEach(([v, n]) => { const o = el('option', null, n); o.value = v; sel.append(o); });
+  if (edit){
+    const st = edit.kind === 'd' ? S.docks[edit.list][edit.i] : S.cats[edit.list].sites[edit.i];
+    sel.value = edit.kind + ':' + edit.list; $('fUrl').value = st.url; $('fName').value = st.name;
+  } else {
+    sel.value = typeof ci === 'string' ? ci : 'c:' + (ci ?? 0); $('fUrl').value = ''; $('fName').value = '';
+  }
+  pickIcon = edit ? ((edit.kind === 'd' ? S.docks[edit.list][edit.i] : S.cats[edit.list].sites[edit.i]).icon || '') : '';
+  $('icPick').hidden = true; $('icQ').value = ''; $('icGrid').innerHTML = ''; showIconPrev();
+  $('sTitle').textContent = edit ? '사이트 수정' : '사이트 추가';
+  $('sOk').textContent = edit ? '저장' : '추가';
+  $('siteDlg').returnValue = '';
+  $('siteDlg').showModal(); (edit ? $('fName') : $('fUrl')).focus();
+}
+$('siteDlg').addEventListener('close', () => {
+  if ($('siteDlg').returnValue !== 'ok') return;
+  let url = $('fUrl').value.trim(); if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  let name = $('fName').value.trim();
+  if (!name){ try{ name = new URL(url).hostname.replace(/^www\./, ''); }catch(e){ name = url; } }
+  const [kind, n] = $('fCat').value.split(':');
+  const dest = kind === 'd' ? S.docks[+n] : S.cats[+n] && S.cats[+n].sites; if (!dest) return;
+  const item = { name, url }; if (pickIcon) item.icon = pickIcon;
+  if (siteEdit){
+    const src = siteEdit.kind === 'd' ? S.docks[siteEdit.list] : S.cats[siteEdit.list].sites;
+    if (src === dest) src[siteEdit.i] = item; else { src.splice(siteEdit.i, 1); dest.push(item); }
+  } else dest.push(item);
+  siteEdit = null; save(); renderCats(); renderDocks();
+});
+
+/* 편집·백업 */
+$('editBtn').onclick = () => { const on = document.body.classList.toggle('edit'); $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
+  [SO.eng, SO.cats, SO.dock0, SO.dock1, ...PANELS.map(P => P.so)].forEach(x => x && x.option('disabled', !on)); renderCats(); };
+$('exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type:'application/json' });
+  const a = el('a'); a.href = URL.createObjectURL(blob); a.download = 'dashboard-backup.json'; a.click(); URL.revokeObjectURL(a.href);
+};
+$('importBtn').onclick = () => $('importFile').click();
+$('importFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try{ const v = JSON.parse(await f.text()); if (!Array.isArray(v.cats)) throw 0; S = fill(v); save(); renderAll(); alert('불러왔어요.'); }
+  catch(err){ alert('백업 파일 형식이 맞지 않아요.'); }
+  e.target.value = '';
+};
+$('resetBtn').onclick = () => { if (confirm('처음 상태로 되돌릴까요? (지금 목록은 사라져요)')){ S = JSON.parse(JSON.stringify(DEFAULT)); save(); renderAll(); } };
+
+/* 뉴스 (구글 뉴스 RSS) — 두 개의 뉴스존 */
+const NKEY = 'myDash.news';
+const cache = (() => { try{ const o = JSON.parse(localStorage.getItem(NKEY)) || {}; for (const k in o) o[k].items.forEach(i => i.date = i.date ? new Date(i.date) : null); return o; }catch(e){ return {}; } })();
+function saveCache(){ try{ const o = {}; Object.keys(cache).sort((a, b) => cache[b].at - cache[a].at).slice(0, 30).forEach(k => o[k] = cache[k]); localStorage.setItem(NKEY, JSON.stringify(o)); }catch(e){} }
+const PANELS = [0, 1].map(k => ({ k, key: k ? 'topics2' : 'topics', idx: 0, req: 0, so: null, root: $('news' + k) }));
+const q1 = (P, sel) => P.root.querySelector(sel);
+function renderTopics(P){
+  const list = S[P.key], box = q1(P, '.topics'); box.innerHTML = '';
+  P.idx = Math.min(P.idx, Math.max(0, list.length - 1));
+  q1(P, '.ntitle').textContent = S.newsTitles[P.k];
+  list.forEach((t, i) => {
+    const b = el('button', 'chip topic' + (i === P.idx ? ' on' : ''), t.name); b.type = 'button'; b.dataset.i = i; b.title = t.q ? (isFeed(t.q) ? 'RSS: ' : '검색어: ') + t.q : '주요 헤드라인 (연합뉴스)';
+    const d = el('span', 'del', '×');
+    d.onclick = ev => { ev.stopPropagation(); if (confirm(`'${t.name}' 주제를 지울까요?`)){ list.splice(i, 1); P.idx = 0; save(); renderTopics(P); loadNews(P); } };
+    b.append(d);
+    b.onclick = () => { P.idx = i; P.elapsed = 0; renderTopics(P); loadNews(P); };
+    box.append(b);
+  });
+  const add = el('button', 'chip edit-only', '+ 주제'); add.type = 'button';
+  add.onclick = () => {
+    const name = prompt('주제 이름 (예: 교육)'); if (!name || !name.trim()) return;
+    const q = prompt('검색어 (여러 개는 OR 로 연결, 예: 교육부 OR 고교학점제)\n비워 두면 주요 헤드라인(연합뉴스), RSS 주소를 넣으면 그 피드가 나와요.', name.trim()); if (q === null) return;
+    list.push({ name:name.trim(), q:q.trim() }); P.idx = list.length - 1; save(); renderTopics(P); loadNews(P);
+  };
+  box.append(add);
+}
+function tfetch(url, ms = 9000){ const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return fetch(url, { signal:c.signal }).finally(() => clearTimeout(t)); }
+function norm(title, link, date, src0){
+  let src = src0 || ''; const m = title.match(/^(.*) - ([^-]+)$/);
+  if (m && !src0){ title = m[1]; src = m[2].trim(); }
+  return { title, link, src, date: date && !isNaN(date) ? date : null };
+}
+const GN = '&hl=ko&gl=KR&ceid=KR:ko';
+const YNA_TOP = 'https://www.yna.co.kr/rss/news.xml';
+const isFeed = q => /^https?:\/\//i.test(q);
+const rssUrl = q => isFeed(q) ? q : q ? 'https://news.google.com/rss/search?q=' + encodeURIComponent(q + ' when:2d') + GN : YNA_TOP;
+const moreUrl = q => isFeed(q) ? (() => { try{ return new URL(q).origin; }catch(e){ return q; } })() : q ? 'https://news.google.com/search?q=' + encodeURIComponent(q) + GN : 'https://www.yna.co.kr/news';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+/* 변환 서비스가 짧은 시간에 여러 요청을 받으면 거절하므로, 요청을 한 줄로 세워 간격을 둠 */
+let qChain = Promise.resolve(), lastAt = 0;
+function queued(fn){
+  const p = qChain.then(async () => { const w = 1200 - (Date.now() - lastAt); if (w > 0) await sleep(w); lastAt = Date.now(); return fn(); });
+  qChain = p.catch(() => {}); return p;
+}
+const srcOf = rss => /yna\.co\.kr/.test(rss) ? '연합뉴스' : '';
+const PROVIDERS = {
+  async rss2json(rss){
+    const j = await (await tfetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rss))).json();
+    if (j.status !== 'ok' || !j.items || !j.items.length) throw new Error(j.message || 'rss2json');
+    return j.items.map(i => norm(i.title, i.link, i.pubDate ? new Date(i.pubDate.replace(' ', 'T') + 'Z') : null, srcOf(rss)));
+  },
+  async feedrapp(rss){
+    const j = await (await tfetch('https://feedrapp.info/?num=20&q=' + encodeURIComponent(rss))).json();
+    const e = (j.responseData && j.responseData.feed && j.responseData.feed.entries) || [];
+    if (!e.length) throw new Error('feedrapp');
+    return e.map(x => norm(x.title, x.link, x.publishedDate ? new Date(x.publishedDate) : null, srcOf(rss)));
+  },
+  async allorigins(rss){
+    const txt = await (await tfetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(rss), 6000)).text();
+    const x = new DOMParser().parseFromString(txt, 'text/xml');
+    const items = [...x.querySelectorAll('item')].map(it => norm(
+      it.querySelector('title')?.textContent || '', it.querySelector('link')?.textContent || '', new Date(it.querySelector('pubDate')?.textContent), srcOf(rss)));
+    if (!items.length) throw new Error('allorigins');
+    return items;
+  }
+};
+let bestProv = 'rss2json';
+try{ bestProv = localStorage.getItem('myDash.prov') || bestProv; }catch(e){}
+async function fetchFeed(q){
+  const rss = rssUrl(q);
+  for (let round = 0; round < 2; round++){
+    const order = [bestProv, ...Object.keys(PROVIDERS).filter(k => k !== bestProv)];
+    for (const name of order){
+      try{
+        const items = await queued(() => PROVIDERS[name](rss));
+        if (bestProv !== name){ bestProv = name; try{ localStorage.setItem('myDash.prov', name); }catch(e){} }
+        return items;
+      }catch(e){}
+    }
+    await sleep(4000);
+  }
+  throw new Error('all failed');
+}
+function ago(d){
+  if (!d) return '';
+  const m = Math.round((Date.now() - d) / 60000);
+  if (m < 1) return '방금'; if (m < 60) return m + '분 전';
+  const h = Math.round(m / 60); if (h < 24) return h + '시간 전';
+  return Math.round(h / 24) + '일 전';
+}
+function msg(P, t){ const ul = q1(P, '.nlist'); ul.innerHTML = ''; ul.append(el('li', 'msg', t)); }
+const hhmm = at => new Date(at).toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', hour12:false });
+function renderNews(P, t, items, at, note){
+  const ul = q1(P, '.nlist'); ul.innerHTML = '';
+  const list = t.q ? items.slice().sort((a, b) => (b.date || 0) - (a.date || 0)) : items;
+  list.slice(0, 5).forEach(n => {
+    const li = el('li'); const a = el('a'); a.href = n.link; a.target = '_blank'; a.rel = 'noopener';
+    a.append(el('div', 't', n.title), el('div', 'm', [n.src, ago(n.date)].filter(Boolean).join(' · ')));
+    li.append(a); ul.append(li);
+  });
+  const li = el('li', 'more-li'); const more = el('a', 'more', '더 보기 →'); more.href = moreUrl(t.q); more.target = '_blank'; more.rel = 'noopener';
+  li.append(more); ul.append(li);
+  q1(P, '.upd').textContent = note || hhmm(at) + ' 업데이트';
+}
+async function loadNews(P, force){
+  const t = S[P.key][P.idx]; if (!t){ msg(P, '편집 → + 주제 로 관심 주제를 추가하세요.'); return; }
+  const c = cache[t.q];
+  if (c && !force && Date.now() - c.at < 10 * 60000){ renderNews(P, t, c.items, c.at); return; }
+  const my = ++P.req;
+  if (c) renderNews(P, t, c.items, c.at, '새로 불러오는 중…'); else msg(P, '불러오는 중…');
+  try{
+    const items = await fetchFeed(t.q);
+    cache[t.q] = { items, at: Date.now() }; saveCache();
+    if (my === P.req) renderNews(P, t, items, cache[t.q].at);
+  }catch(e){
+    if (my !== P.req) return;
+    if (c) renderNews(P, t, c.items, c.at, hhmm(c.at) + ' 결과 (다시 시도 중)');
+    else msg(P, '뉴스 서버가 잠시 바빠요. 1분 뒤 자동으로 다시 불러올게요.');
+    setTimeout(() => { if (my === P.req) loadNews(P, true); }, 60000);
+  }
+}
+PANELS.forEach(P => {
+  q1(P, '.refresh').onclick = () => loadNews(P, true);
+  q1(P, '.rename').onclick = () => { const n = prompt('뉴스존 이름', S.newsTitles[P.k]); if (n && n.trim()){ S.newsTitles[P.k] = n.trim(); save(); renderTopics(P); } };
+});
+setInterval(() => PANELS.forEach(P => loadNews(P, true)), 15 * 60000);
+
+/* 주제 자동 넘김 (마우스를 올려 두거나 편집 중엔 잠시 멈춤) */
+const ROT_OPTS = [[0,'자동 넘김 끄기'], [1,'1분마다 넘김'], [2,'2분마다 넘김'], [3,'3분마다 넘김'], [5,'5분마다 넘김'], [10,'10분마다 넘김']];
+PANELS.forEach(P => {
+  P.elapsed = 0; P.hover = false;
+  P.root.addEventListener('mouseenter', () => P.hover = true);
+  P.root.addEventListener('mouseleave', () => P.hover = false);
+  const sel = q1(P, '.rot');
+  ROT_OPTS.forEach(([v, n]) => { const o = el('option', null, n); o.value = v; sel.append(o); });
+  sel.value = S.rotate[P.k];
+  sel.onchange = () => { S.rotate[P.k] = +sel.value; P.elapsed = 0; save(); };
+});
+setInterval(() => PANELS.forEach(P => {
+  const m = S.rotate[P.k], list = S[P.key], prog = q1(P, '.prog');
+  if (!m || list.length < 2){ prog.style.display = 'none'; P.elapsed = 0; return; }
+  prog.style.display = '';
+  if (!P.hover && !isEdit() && !document.hidden) P.elapsed += 250;
+  if (P.elapsed >= m * 60000){ P.elapsed = 0; P.idx = (P.idx + 1) % list.length; renderTopics(P); loadNews(P); }
+  q1(P, '.prog i').style.width = (P.elapsed / (m * 60000) * 100) + '%';
+}), 250);
+
+
+/* 좌우 아이콘 존 */
+function renderDocks(){
+  S.docks.forEach((list, k) => {
+    const box = $('dock' + k).querySelector('.dock-items'); box.innerHTML = '';
+    list.forEach((st, i) => {
+      const a = el('a', 'dtile'); a.href = st.url; a.target = '_blank'; a.rel = 'noopener';
+      a.dataset.k = k; a.dataset.i = i; a.dataset.name = st.name; a.setAttribute('aria-label', st.name);
+      a.style.setProperty('--tint', `var(--p${i % 5 + 1})`);
+      a.addEventListener('click', ev => { if (isEdit()){ ev.preventDefault(); openSite(null, { kind:'d', list:k, i }); } });
+      const img = el('img'); img.src = iconSrc(st); img.alt = ''; img.draggable = false;
+      img.onload = () => a.classList.add('has-img'); img.onerror = () => img.remove();
+      const x = el('button', 'x', '×'); x.title = '삭제';
+      x.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); list.splice(i, 1); save(); renderDocks(); };
+      a.append(el('b', null, (st.name || '?').trim().charAt(0)), img, x); box.append(a);
+    });
+    if (!SO['dock' + k]) SO['dock' + k] = mkSort(box, { group:'dock', filter:'.x', preventOnFilter:false, onEnd: syncDocks });
+  });
+}
+function syncDocks(){
+  const old = S.docks.map(l => l);
+  S.docks = [0, 1].map(k => [...$('dock' + k).querySelectorAll('.dtile')].map(a => old[+a.dataset.k][+a.dataset.i]));
+  save(); renderDocks();
+}
+[0, 1].forEach(k => { $('dock' + k).querySelector('.dadd').onclick = () => openSite('d:' + k); });
+const tip = $('tip');
+document.addEventListener('mouseover', e => {
+  const a = e.target.closest('.dtile');
+  if (!a || window.innerWidth <= 900){ tip.classList.remove('show'); return; }
+  const r = a.getBoundingClientRect(), left = !!a.closest('#dock0');
+  tip.textContent = a.dataset.name; tip.style.top = (r.top + r.height / 2) + 'px';
+  tip.style.left = left ? (r.right + 12) + 'px' : ''; tip.style.right = left ? '' : (window.innerWidth - r.left + 12) + 'px';
+  tip.classList.add('show');
+});
+document.addEventListener('mousedown', () => tip.classList.remove('show'));
+
+/* 자주 쓰는 검색어 (슬라이드 창) */
+const EXTRA_ENGINES = [
+  { id:'gimg', name:'구글 이미지', url:'https://www.google.com/search?tbm=isch&q=' },
+  { id:'nimg', name:'네이버 이미지', url:'https://search.naver.com/search.naver?where=image&query=' },
+  { id:'insta', name:'인스타그램', url:'https://www.instagram.com/explore/search/keyword/?q=' }
+];
+const allEngines = () => [...engPool(), ...EXTRA_ENGINES];
+const engById = id => allEngines().find(e => e.id === id) || ENGINES[0];
+function renderSaved(){
+  const ul = $('spList'); ul.innerHTML = '';
+  if (!S.saved.length){ ul.append(el('li', 'sp-empty', '아래에서 자주 쓰는 검색어를 추가해 보세요.')); return; }
+  S.saved.forEach((it, i) => {
+    const en = engById(it.e), li = el('li'); li.dataset.i = i;
+    const b = el('button', 'sp-item'); b.type = 'button'; b.title = `${en.name}에서 '${it.q}' 검색`;
+    const img = el('img'); img.src = fav(en.url); img.alt = ''; img.draggable = false; img.onerror = () => img.style.visibility = 'hidden';
+    b.append(img, el('span', 'eng', en.name + '에서'), el('span', 'q', it.q), el('span', 'go', '↗'));
+    b.onclick = () => window.open(engUrl(en, it.q), '_blank', 'noopener');
+    const x = el('button', 'x', '×'); x.type = 'button'; x.title = '삭제';
+    x.onclick = () => { S.saved.splice(i, 1); save(); renderSaved(); };
+    li.append(b, x); ul.append(li);
+  });
+}
+function refreshSpEng(){ const sel = $('spEng'), v = sel.value; sel.innerHTML = ''; allEngines().forEach(en => { const o = el('option', null, en.name); o.value = en.id; sel.append(o); }); if (v) sel.value = v; renderSaved(); }
+refreshSpEng();
+$('spAdd').onsubmit = e => {
+  e.preventDefault(); const q = $('spQ').value.trim(); if (!q) return;
+  S.saved.push({ e: $('spEng').value, q }); $('spQ').value = ''; save(); renderSaved();
+};
+function openSaved(on){ $('sp').classList.toggle('open', on); $('spBack').classList.toggle('open', on); if (on){ $('spEng').value = S.engine; if (!$('spEng').value) $('spEng').selectedIndex = 0; } }
+$('savedOpen').onclick = () => openSaved(true);
+$('spClose').onclick = $('spBack').onclick = () => openSaved(false);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('sp').classList.contains('open')) openSaved(false); });
+SO.saved = mkSort($('spList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
+  const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); save(); renderSaved(); } });
+
+function renderAll(){ renderEngines(); renderCats(); renderDocks(); renderSaved(); PANELS.forEach(P => { renderTopics(P); loadNews(P); }); }
+renderAll();
+SO.eng = mkSort($('engines'), { draggable:'.eng', filter:'.del', preventOnFilter:false, onEnd(){ S.engineOrder = [...$('engines').querySelectorAll('.eng')].map(c => c.dataset.id); save(); } });
+SO.cats = mkSort($('cats'), { draggable:'.cat', handle:'h3', filter:'.ib', preventOnFilter:false, onEnd(){
+  const old = S.cats; S.cats = [...$('cats').querySelectorAll('.cat')].map(c => old[+c.dataset.ci]); save(); renderCats(); } });
+PANELS.forEach(P => {
+  P.so = mkSort(q1(P, '.topics'), { draggable:'.topic', filter:'.del', preventOnFilter:false, onEnd(){
+    const cur = S[P.key][P.idx], old = S[P.key];
+    S[P.key] = [...q1(P, '.topics').querySelectorAll('.topic')].map(c => old[+c.dataset.i]);
+    P.idx = Math.max(0, S[P.key].indexOf(cur)); save(); renderTopics(P); } });
+});
+</script>
+</body>
+</html>
