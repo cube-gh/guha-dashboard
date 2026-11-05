@@ -401,18 +401,18 @@ const DEFAULT = {
 };
 function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; return v; }
 const ENGINES = [
-  { id:'naver', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
-  { id:'google', name:'구글', url:'https://www.google.com/search?q=' },
-  { id:'daum', name:'다음', url:'https://search.daum.net/search?q=' },
-  { id:'youtube', name:'유튜브', url:'https://www.youtube.com/results?search_query=' },
-  { id:'namu', name:'나무위키', url:'https://namu.wiki/Search?q=' },
-  { id:'wiki', name:'위키백과', url:'https://ko.wikipedia.org/w/index.php?search=' },
-  { id:'scholar', name:'구글 학술', url:'https://scholar.google.com/scholar?q=' },
-  { id:'riss', name:'RISS 논문', url:'https://www.riss.kr/search/Search.do?isDetailSearch=N&searchGubun=true&query=' },
-  { id:'news', name:'뉴스', url:'https://search.naver.com/search.naver?where=news&query=' },
-  { id:'map', name:'카카오맵', url:'https://map.kakao.com/?q=' },
-  { id:'dict', name:'영어사전', url:'https://en.dict.naver.com/#/search?query=' },
-  { id:'papago', name:'번역', url:'https://papago.naver.com/?sk=auto&tk=ko&st=' }
+  { id:'naver', home:'https://www.naver.com', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
+  { id:'google', home:'https://www.google.com', name:'구글', url:'https://www.google.com/search?q=' },
+  { id:'daum', home:'https://www.daum.net', name:'다음', url:'https://search.daum.net/search?q=' },
+  { id:'youtube', home:'https://www.youtube.com', name:'유튜브', url:'https://www.youtube.com/results?search_query=' },
+  { id:'namu', home:'https://namu.wiki', name:'나무위키', url:'https://namu.wiki/Search?q=' },
+  { id:'wiki', home:'https://ko.wikipedia.org', name:'위키백과', url:'https://ko.wikipedia.org/w/index.php?search=' },
+  { id:'scholar', home:'https://scholar.google.com', name:'구글 학술', url:'https://scholar.google.com/scholar?q=' },
+  { id:'riss', home:'https://www.riss.kr', name:'RISS 논문', url:'https://www.riss.kr/search/Search.do?isDetailSearch=N&searchGubun=true&query=' },
+  { id:'news', home:'https://news.naver.com', name:'뉴스', url:'https://search.naver.com/search.naver?where=news&query=' },
+  { id:'map', home:'https://map.kakao.com', name:'카카오맵', url:'https://map.kakao.com/?q=' },
+  { id:'dict', home:'https://en.dict.naver.com', name:'영어사전', url:'https://en.dict.naver.com/#/search?query=' },
+  { id:'papago', home:'https://papago.naver.com', name:'번역', url:'https://papago.naver.com/?sk=auto&tk=ko&st=' }
 ];
 
 let S = fill(load());
@@ -426,6 +426,10 @@ function engPool(){ return [...ENGINES, ...S.customEngines]; }
 function engList(){
   const pool = engPool().filter(e => !S.hiddenEngines.includes(e.id)), o = S.engineOrder || [];
   return [...o.map(id => pool.find(e => e.id === id)).filter(Boolean), ...pool.filter(e => !o.includes(e.id))];
+}
+function engHome(en){
+  if (en.home) return en.home;
+  try{ const u = new URL(en.url.split('%s').join('')); let h = u.hostname; if (h.startsWith('search.')) h = 'www.' + h.slice(7); return u.protocol + '//' + h; }catch(e){ return en.url; }
 }
 function engUrl(en, q){ const v = encodeURIComponent(q); return en.url.includes('%s') ? en.url.split('%s').join(v) : en.url + v; }
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -457,7 +461,9 @@ function renderEngines(){
     b.append(d);
     b.onclick = () => {
       S.engine = en.id; save(); renderEngines();
-      if (!isEdit() && $('q').value.trim()) $('sform').requestSubmit(); else $('q').focus();
+      if (isEdit()) $('q').focus();
+      else if ($('q').value.trim()) $('sform').requestSubmit();
+      else window.open(engHome(en), '_blank', 'noopener');
     };
     box.append(b);
   });
