@@ -216,6 +216,8 @@ body.locked #gate{display:flex;min-height:100vh;align-items:center;justify-conte
 @media (prefers-color-scheme:dark){:root{--retro-ink:#f2f2f2}}
 .cat h3 .name{font-family:var(--retro-font);font-size:13px;font-weight:700;color:var(--retro-ink);letter-spacing:0}
 .site span{font-family:var(--retro-font);font-size:12px;color:var(--retro-ink);letter-spacing:0;-webkit-font-smoothing:none;font-smooth:never}
+.clock small{font-size:.5em;font-weight:400;letter-spacing:0;margin-right:5px;color:var(--sub)}
+#q::placeholder{font-size:12px;letter-spacing:.2px;color:var(--sub);opacity:.8}
 </style>
 </head>
 <body class="locked">
@@ -444,7 +446,8 @@ const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) 
 /* 시계 */
 function tick(){
   const d = new Date();
-  $('clock').textContent = d.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', hour12:false });
+  const h = d.getHours(), mm = String(d.getMinutes()).padStart(2, '0');
+  $('clock').innerHTML = `<small>${h < 12 ? '오전' : '오후'}</small>${h % 12 || 12}:${mm}`;
   $('date').textContent = d.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
 }
 tick(); setInterval(tick, 10000);
