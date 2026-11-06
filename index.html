@@ -250,6 +250,14 @@ body.edit .dsep .x{display:block}
 .dsepadd{margin-top:8px!important;height:28px!important}
 .dsepadd i{display:block;width:20px;height:1.5px;background:var(--sub);border-radius:2px}
 @media (max-width:900px){.dsep{width:14px;height:44px}.dsep i{width:1px;height:30px;background:linear-gradient(180deg,transparent,var(--sep-dark) 25%,var(--sep-dark) 75%,transparent);box-shadow:1px 0 0 var(--sep-light)}body.edit .dsep{width:20px;height:44px}.dsepadd{margin:0 0 0 8px!important;width:28px!important;height:44px!important}.dsepadd i{width:1.5px;height:20px}}
+/* 카테고리 3단 + 뉴스 폭 줄임 */
+.grid{grid-template-columns:minmax(0,1fr) minmax(280px,330px)}
+.cats{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:1180px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+@media (max-width:560px){.cats{grid-template-columns:1fr}}
+.news .topics{gap:5px}
+.news .topics .chip{padding:4px 10px;font-size:12px}
 </style>
 </head>
 <body class="locked">
@@ -770,10 +778,12 @@ $('editBtn').onclick = async () => {
 };
 let lastSync = 0;
 async function syncFromServer(){
-  if (!/^https?:$/.test(location.protocol) || Date.now() - lastSync < 60000 || isEdit()) return;
+  if (Date.now() - lastSync < 60000 || isEdit()) return;
   lastSync = Date.now();
   try{
-    const r = await fetch('dashboard-backup.json?t=' + Date.now(), { cache:'no-store' }); if (!r.ok) return;
+    // 깃허브 주소에서 열면 같은 폴더의 파일을, 내 컴퓨터 파일로 열면 깃허브에 올린 파일을 받아옴
+    const url = /^https?:$/.test(location.protocol) ? 'dashboard-backup.json' : 'https://cube-gh.github.io/guha-dashboard/dashboard-backup.json';
+    const r = await fetch(url + '?t=' + Date.now(), { cache:'no-store' }); if (!r.ok) return;
     const txt = await r.text(); const v = JSON.parse(txt); if (!v || !Array.isArray(v.cats)) return;
     let sig = 0; for (let i = 0; i < txt.length; i++) sig = (sig * 31 + txt.charCodeAt(i)) | 0;
     let seen = ''; try{ seen = localStorage.getItem('myDash.remoteSig') || ''; }catch(e){}
