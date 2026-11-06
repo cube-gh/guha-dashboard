@@ -283,10 +283,7 @@ body.edit .dsep .x{display:block}
     </a>
     <div class="toolbar">
       <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
-      <button class="btn edit-only" id="exportBtn">백업 저장</button>
-      <button class="btn edit-only" id="importBtn">백업 불러오기</button>
       <button class="btn" id="editBtn">편집</button>
-      <input type="file" id="importFile" accept=".json" hidden>
     </div>
   </header>
 
@@ -732,43 +729,56 @@ $('siteDlg').addEventListener('close', () => {
   siteEdit = null; save(); renderCats(); renderDocks();
 });
 
-/* 편집·백업 */
-$('editBtn').onclick = () => { const on = document.body.classList.toggle('edit'); $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
-  [SO.eng, SO.cats, SO.dock0, SO.dock1, ...PANELS.map(P => P.so)].forEach(x => x && x.option('disabled', !on)); renderCats(); };
-/* 백업: 저장·불러오기 창을 열 때 지난번에 고른 폴더(예: C:\004_dash_board)에서 시작
-   (웹페이지는 보안상 폴더를 직접 지정할 수 없어서, 처음 한 번 그 폴더를 골라 두면 다음부터 기억함) */
-const BK_PICK = { id:'guhaBackup', types:[{ description:'GUHA 대시보드 백업', accept:{ 'application/json':['.json'] } }] };
-function toast(m){ const d = el('div', 'toast', m); document.body.append(d); setTimeout(() => d.classList.add('show'), 10); setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 300); }, 2200); }
-function downloadBackup(json){
-  const blob = new Blob([json], { type:'application/json' });
-  const a = el('a'); a.href = URL.createObjectURL(blob); a.download = 'dashboard-backup.json'; a.click(); URL.revokeObjectURL(a.href);
-}
-$('exportBtn').onclick = async () => {
+/* 편집 → 완료하면 저장
+   - 이 기기(브라우저)에 저장 + 크롬·엣지에선 dashboard-backup.json 파일에도 자동 저장
+   - 깃허브에 올린 dashboard-backup.json이 이 기기 것보다 새것이면 열 때 자동으로 받아옴 */
+const BK_PICK = { id:'guhaBackup', types:[{ description:'GUHA 즐겨찾기 데이터', accept:{ 'application/json':['.json'] } }] };
+function toast(m, ms = 2600){ const d = el('div', 'toast', m); document.body.append(d); setTimeout(() => d.classList.add('show'), 10); setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 300); }, ms); }
+function bump(){ S.rev = Date.now(); save(); }
+const idb = (() => {
+  let dbp; const open = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('guhaDash', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+  const run = (mode, fn) => open().then(db => new Promise((res, rej) => { const tx = db.transaction('kv', mode); const q = fn(tx.objectStore('kv')); tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); }));
+  return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)) };
+})();
+async function saveToFile(){
+  if (!window.showSaveFilePicker) return null;
   const json = JSON.stringify(S, null, 2);
-  if (window.showSaveFilePicker){
-    try{
-      const h = await showSaveFilePicker({ ...BK_PICK, suggestedName:'dashboard-backup.json' });
-      const w = await h.createWritable(); await w.write(json); await w.close();
-      toast('백업을 저장했어요 · ' + h.name); return;
-    }catch(err){ if (err && err.name === 'AbortError') return; }
-  }
-  downloadBackup(json);
-};
-function applyBackup(text){
-  try{ const v = JSON.parse(text); if (!Array.isArray(v.cats)) throw 0; S = fill(v); save(); renderAll(); toast('백업을 불러왔어요.'); }
-  catch(err){ alert('백업 파일 형식이 맞지 않아요.'); }
+  let h = null; try{ h = await idb.get('backupHandle'); }catch(e){}
+  try{
+    if (h){
+      let perm = await h.queryPermission({ mode:'readwrite' });
+      if (perm !== 'granted') perm = await h.requestPermission({ mode:'readwrite' });
+      if (perm !== 'granted') h = null;
+    }
+    if (!h){
+      toast('처음 한 번만: C:\\004_dash_board 폴더에 dashboard-backup.json으로 저장해 주세요', 4000);
+      h = await showSaveFilePicker({ ...BK_PICK, suggestedName:'dashboard-backup.json' });
+      try{ await idb.set('backupHandle', h); }catch(e){}
+    }
+    const w = await h.createWritable(); await w.write(json); await w.close();
+    return h.name;
+  }catch(err){ return null; }
 }
-$('importBtn').onclick = async () => {
-  if (window.showOpenFilePicker){
-    try{ const [h] = await showOpenFilePicker(BK_PICK); applyBackup(await (await h.getFile()).text()); return; }
-    catch(err){ if (err && err.name === 'AbortError') return; }
-  }
-  $('importFile').click();
+$('editBtn').onclick = async () => {
+  const on = document.body.classList.toggle('edit');
+  $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
+  [SO.eng, SO.cats, SO.dock0, SO.dock1, ...PANELS.map(P => P.so)].forEach(x => x && x.option('disabled', !on)); renderCats();
+  if (on) return;
+  bump();
+  const name = await saveToFile();
+  toast(name ? `저장했어요 · ${name} 을(를) 깃허브에 올리면 휴대폰에도 반영돼요` : '이 기기에 저장했어요', name ? 4200 : 2200);
 };
-$('importFile').onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  applyBackup(await f.text()); e.target.value = '';
-};
+let lastSync = 0;
+async function syncFromServer(){
+  if (!/^https?:$/.test(location.protocol) || Date.now() - lastSync < 60000 || isEdit()) return;
+  lastSync = Date.now();
+  try{
+    const r = await fetch('dashboard-backup.json?t=' + Date.now(), { cache:'no-store' }); if (!r.ok) return;
+    const v = await r.json(); if (!v || !Array.isArray(v.cats)) return;
+    if ((v.rev || 0) > (S.rev || 0)){ S = fill(v); save(); renderAll(); toast('최신 즐겨찾기로 업데이트했어요'); }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncFromServer(); });
 
 /* 뉴스 (구글 뉴스 RSS) — 두 개의 뉴스존 */
 const NKEY = 'myDash.news';
@@ -980,7 +990,7 @@ function renderSaved(){
     b.append(img, el('span', 'eng', en.name + '에서'), el('span', 'q', it.q), el('span', 'go', '↗'));
     b.onclick = () => window.open(engUrl(en, it.q), '_blank', 'noopener');
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = '삭제';
-    x.onclick = () => { S.saved.splice(i, 1); save(); renderSaved(); };
+    x.onclick = () => { S.saved.splice(i, 1); bump(); renderSaved(); };
     li.append(b, x); ul.append(li);
   });
 }
@@ -988,17 +998,18 @@ function refreshSpEng(){ const sel = $('spEng'), v = sel.value; sel.innerHTML = 
 refreshSpEng();
 $('spAdd').onsubmit = e => {
   e.preventDefault(); const q = $('spQ').value.trim(); if (!q) return;
-  S.saved.push({ e: $('spEng').value, q }); $('spQ').value = ''; save(); renderSaved();
+  S.saved.push({ e: $('spEng').value, q }); $('spQ').value = ''; bump(); renderSaved();
 };
 function openSaved(on){ $('sp').classList.toggle('open', on); $('spBack').classList.toggle('open', on); if (on){ $('spEng').value = S.engine; if (!$('spEng').value) $('spEng').selectedIndex = 0; } }
 $('savedOpen').onclick = () => openSaved(true);
 $('spClose').onclick = $('spBack').onclick = () => openSaved(false);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('sp').classList.contains('open')) openSaved(false); });
 SO.saved = mkSort($('spList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
-  const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); save(); renderSaved(); } });
+  const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderSaved(); } });
 
 function renderAll(){ renderEngines(); renderCats(); renderDocks(); renderSaved(); PANELS.forEach(P => { renderTopics(P); loadNews(P); }); }
 renderAll();
+syncFromServer();
 SO.eng = mkSort($('engines'), { draggable:'.eng', filter:'.del', preventOnFilter:false, onEnd(){ S.engineOrder = [...$('engines').querySelectorAll('.eng')].map(c => c.dataset.id); save(); } });
 SO.cats = mkSort($('cats'), { draggable:'.cat', handle:'h3', filter:'.ib', preventOnFilter:false, onEnd(){
   const old = S.cats; S.cats = [...$('cats').querySelectorAll('.cat')].map(c => old[+c.dataset.ci]); save(); renderCats(); } });
