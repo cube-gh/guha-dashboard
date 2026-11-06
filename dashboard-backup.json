@@ -3,45 +3,7 @@
   "cats": [
     {
       "name": "종합",
-      "sites": [
-        {
-          "name": "네이버",
-          "url": "https://www.naver.com"
-        },
-        {
-          "name": "유튜브",
-          "url": "https://www.youtube.com"
-        }
-      ]
-    },
-    {
-      "name": "AI·작업 도구",
-      "sites": [
-        {
-          "name": "Claude",
-          "url": "https://claude.ai"
-        },
-        {
-          "name": "쳇지피티",
-          "url": "https://chatgpt.com/"
-        },
-        {
-          "name": "제미나이",
-          "url": "https://gemini.google.com/app"
-        },
-        {
-          "name": "유튜브 요약",
-          "url": "https://livewiki.com/ko"
-        },
-        {
-          "name": "GitHub",
-          "url": "https://github.com"
-        },
-        {
-          "name": "Supabase",
-          "url": "https://supabase.com"
-        }
-      ]
+      "sites": []
     },
     {
       "name": "도자기·도예",
@@ -57,6 +19,18 @@
         {
           "name": "동양세라믹스",
           "url": "https://www.doyoceramics.co.kr/"
+        },
+        {
+          "name": "가마샵",
+          "url": "https://gamashop.co.kr/"
+        },
+        {
+          "name": "야마코 유약",
+          "url": "https://amaco.com/"
+        },
+        {
+          "name": "STI전기가마",
+          "url": "https://stishop.com/"
         }
       ]
     },
@@ -120,11 +94,44 @@
       "sites": []
     },
     {
-      "name": "쇼핑몰",
+      "name": "목공",
       "sites": []
     },
     {
       "name": "컴퓨터",
+      "sites": []
+    },
+    {
+      "name": "AI·작업 도구",
+      "sites": [
+        {
+          "name": "Claude",
+          "url": "https://claude.ai"
+        },
+        {
+          "name": "쳇지피티",
+          "url": "https://chatgpt.com/"
+        },
+        {
+          "name": "제미나이",
+          "url": "https://gemini.google.com/app"
+        },
+        {
+          "name": "유튜브 요약",
+          "url": "https://livewiki.com/ko"
+        },
+        {
+          "name": "GitHub",
+          "url": "https://github.com"
+        },
+        {
+          "name": "Supabase",
+          "url": "https://supabase.com"
+        }
+      ]
+    },
+    {
+      "name": "쇼핑몰",
       "sites": []
     },
     {
@@ -156,10 +163,6 @@
           "url": "https://mail.google.com"
         }
       ]
-    },
-    {
-      "name": "목공",
-      "sites": []
     }
   ],
   "topics": [
@@ -272,12 +275,19 @@
         "url": "https://github.com"
       },
       {
-        "name": "네이버",
-        "url": "https://www.naver.com"
+        "sep": true
       },
       {
         "name": "지도",
         "url": "https://map.naver.com/p?c=15.00,0,0,0,dh"
+      },
+      {
+        "name": "다음맵",
+        "url": "https://map.kakao.com/"
+      },
+      {
+        "name": "구글맵",
+        "url": "https://www.google.co.kr/maps/"
       }
     ],
     [
@@ -318,14 +328,6 @@
         "sep": true
       },
       {
-        "name": "카카오맵",
-        "url": "https://map.kakao.com"
-      },
-      {
-        "name": "비짓제주",
-        "url": "https://www.visitjeju.net"
-      },
-      {
         "name": "필사를 위한 시선",
         "url": "https://cube-gh.github.io/sisup/",
         "icon": "iconify:lucide:book-open"
@@ -339,6 +341,25 @@
         "name": "거래처 연락처",
         "url": "https://cube-gh.github.io/partners/",
         "icon": "iconify:ph:phone-fill"
+      },
+      {
+        "sep": true
+      },
+      {
+        "name": "클리앙",
+        "url": "https://www.clien.net/service/"
+      },
+      {
+        "name": "딴지일보",
+        "url": "https://www.ddanzi.com/best_all"
+      },
+      {
+        "name": "보배드림",
+        "url": "https://www.bobaedream.co.kr/list?code=best"
+      },
+      {
+        "name": "블라인드",
+        "url": "https://www.teamblind.com/kr/"
       }
     ]
   ],
@@ -393,5 +414,5 @@
     }
   ],
   "hiddenEngines": [],
-  "rev": 1793954455640
+  "rev": 1793956215146
 }
