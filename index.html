@@ -73,7 +73,7 @@ body.edit .chip .del{display:inline}
 .site{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:14px;min-width:0}
 .site:hover{background:var(--hover)}
 .site .dot{width:5px;height:5px;border-radius:50%;flex:none;margin:0 4px;background:#4caf7d;box-shadow:0 0 0 2px rgba(76,175,125,.15);transition:background .2s,box-shadow .2s,transform .2s}
-.site:hover .dot{background:#e0555a;box-shadow:0 0 0 2px rgba(224,85,90,.18);transform:scale(1.15)}
+.site:hover .dot{background:radial-gradient(circle at 50% 45%,#e9fff1 0%,#7debaa 45%,#4caf7d 100%);box-shadow:0 0 0 2px rgba(76,175,125,.15)}
 .site span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .site .x{display:none;border:none;background:transparent;color:var(--danger);cursor:pointer;font-size:14px;padding:0 2px}
 body.edit .site .x{display:inline}
@@ -258,6 +258,27 @@ body.edit .dsep .x{display:block}
 @media (max-width:560px){.cats{grid-template-columns:1fr}}
 .news .topics{gap:5px}
 .news .topics .chip{padding:4px 10px;font-size:12px}
+/* 카테고리 항상 펼침 */
+.cbody{grid-template-rows:1fr!important}
+.cin .sites{opacity:1!important;transform:none!important}
+.cat h3{cursor:default}
+body.edit .cat h3{cursor:grab}
+.cat h3 .chev,.cat h3 .cnt{display:none}
+/* 빈 공간 없이 아래 카테고리가 위로 채워지는 배치 (벽돌 쌓기) */
+.cats{grid-auto-rows:2px;row-gap:0!important;column-gap:14px;align-items:start}
+body.edit .cats .sites{grid-template-columns:1fr}
+.cats .card.cat{background:var(--card)!important}
+/* 카테고리 안 가로 구분선 (양옆 아이콘 구분선과 같은 새김 느낌) */
+.ssep{grid-column:1/-1;position:relative;height:13px;display:flex;align-items:center;padding:0 8px}
+.ssep i{display:block;flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--sep-dark) 12%,var(--sep-dark) 88%,transparent);box-shadow:0 1px 0 var(--sep-light)}
+.ssep .x{display:none;position:absolute;right:0;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:11px;line-height:16px;padding:0;cursor:pointer}
+body.edit .ssep{cursor:grab;height:22px;border-radius:8px;outline:1px dashed var(--line);padding-right:26px}
+body.edit .ssep .x{display:block}
+.addrow{gap:6px;margin-top:6px}
+.addrow .addsite{margin-top:0;flex:1;width:auto}
+.addrow .addsep{flex:0 0 auto;padding:6px 10px}
+body.edit .addrow.edit-only{display:flex!important;width:100%}
+.site:hover span{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:currentColor}
 </style>
 </head>
 <body class="locked">
@@ -611,6 +632,22 @@ function setOpenCat(ci){
   openCat = ci;
   document.querySelectorAll('#cats .cat').forEach(c => { const on = +c.dataset.ci === ci; c.classList.toggle('open', on); c.querySelector('h3').setAttribute('aria-expanded', on); });
 }
+/* 각 카드 높이만큼 칸을 차지하게 해서 위쪽 빈 공간을 메움 */
+const CAT_GAP = 14;
+let catRaf = 0;
+function layoutCats(){
+  cancelAnimationFrame(catRaf);
+  catRaf = requestAnimationFrame(() => {
+    $('cats').querySelectorAll(':scope > .card').forEach(c => {
+      c.style.gridRowEnd = 'auto';
+      const h = c.getBoundingClientRect().height;
+      c.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((h + CAT_GAP) / 2));
+    });
+  });
+}
+const catRO = window.ResizeObserver ? new ResizeObserver(layoutCats) : null;
+window.addEventListener('resize', layoutCats);
+if (document.fonts) document.fonts.ready.then(layoutCats);
 function renderCats(){
   const box = $('cats'); box.innerHTML = '';
   S.cats.forEach((c, ci) => {
@@ -623,13 +660,19 @@ function renderCats(){
     const cnt = el('span', 'cnt', c.sites.length); const chev = el('i', 'chev');
     h.append(cnt, chev);
     h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', openCat === ci);
-    const toggle = ev => { if (isEdit() || ev.target.closest('.ib')) return; setOpenCat(openCat === ci ? -1 : ci); };
+    const toggle = () => {}; // 항상 펼침
     h.addEventListener('click', toggle);
     h.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggle(ev); } });
     card.append(h);
     const body = el('div', 'cbody'), inner = el('div', 'cin'); body.append(inner);
     const list = el('div', 'sites'); list.dataset.ci = ci;
     c.sites.forEach((st, si) => {
+      if (st.sep){
+        const sp = el('div', 'ssep'); sp.dataset.ci = ci; sp.dataset.si = si; sp.setAttribute('role', 'separator');
+        const x = el('button', 'x', '×'); x.title = '구분선 삭제';
+        x.onclick = ev => { ev.stopPropagation(); c.sites.splice(si, 1); save(); renderCats(); };
+        sp.append(el('i'), x); list.append(sp); return;
+      }
       const a = el('a', 'site'); a.href = st.url; a.target = '_blank'; a.rel = 'noopener'; a.title = st.url;
       a.dataset.ci = ci; a.dataset.si = si; a.addEventListener('click', ev => { if (isEdit()){ ev.preventDefault(); openSite(null, { kind:'c', list:ci, i:si }); } });
       const dot = el('i', 'dot');
@@ -642,13 +685,19 @@ function renderCats(){
     });
     inner.append(list);
     mkSort(list, { group:'sites', filter:'.x, .ed', preventOnFilter:false, onEnd: syncSites });
-    const add = el('button', 'addsite edit-only', '+ 사이트 추가'); add.onclick = () => openSite(ci);
-    inner.append(add); card.append(body);
+    const addRow = el('div', 'addrow edit-only');
+    const add = el('button', 'addsite', '+ 사이트 추가'); add.onclick = () => openSite(ci);
+    const addSep = el('button', 'addsite addsep', '+ 구분선'); addSep.title = '가로 구분선 추가';
+    addSep.onclick = () => { c.sites.push({ sep:true }); save(); renderCats(); };
+    addRow.append(add, addSep);
+    inner.append(addRow); card.append(body);
     box.append(card);
   });
   const addCat = el('div', 'card add', '+ 카테고리 추가');
   addCat.onclick = () => { const n = prompt('새 카테고리 이름'); if (n && n.trim()){ S.cats.push({ name:n.trim(), sites:[] }); save(); renderCats(); } };
   box.append(addCat);
+  if (catRO){ catRO.disconnect(); box.querySelectorAll(':scope > .card').forEach(c => catRO.observe(c)); }
+  layoutCats();
 }
 function syncSites(){
   const old = S.cats.map(c => c.sites);
