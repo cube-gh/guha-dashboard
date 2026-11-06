@@ -778,9 +778,12 @@ async function syncFromServer(){
     let sig = 0; for (let i = 0; i < txt.length; i++) sig = (sig * 31 + txt.charCodeAt(i)) | 0;
     let seen = ''; try{ seen = localStorage.getItem('myDash.remoteSig') || ''; }catch(e){}
     if (String(sig) === seen) return;
-    // 깃허브의 파일이 바뀌었으면(= 새로 올렸으면) 그 내용이 기준
-    S = fill(v); save(); renderAll(); toast('최신 즐겨찾기로 업데이트했어요');
+    // 깃허브의 파일이 바뀌었으면(= 새로 올렸으면) 그 내용으로 바꿈.
+    // 단, 이 기기에서 그 파일보다 나중에 고친 내용이 있으면 먼저 물어봄 (실수로 덮어쓰기 방지)
     try{ localStorage.setItem('myDash.remoteSig', String(sig)); }catch(e){}
+    if ((S.rev || 0) > (v.rev || 0) &&
+        !confirm('깃허브에 올린 즐겨찾기 파일이 이 기기의 내용과 달라요.\n\n[확인] 깃허브 파일로 바꾸기\n[취소] 이 기기의 내용 그대로 두기')) return;
+    S = fill(v); save(); renderAll(); toast('최신 즐겨찾기로 업데이트했어요');
   }catch(e){}
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncFromServer(); });

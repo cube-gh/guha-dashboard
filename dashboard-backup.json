@@ -2,7 +2,7 @@
   "engine": "google",
   "cats": [
     {
-      "name": "자주 가는 곳",
+      "name": "종합",
       "sites": [
         {
           "name": "네이버",
@@ -11,10 +11,6 @@
         {
           "name": "유튜브",
           "url": "https://www.youtube.com"
-        },
-        {
-          "name": "기상청 날씨",
-          "url": "https://www.weather.go.kr"
         }
       ]
     },
@@ -48,6 +44,27 @@
       ]
     },
     {
+      "name": "도자기·도예",
+      "sites": [
+        {
+          "name": "대원도재",
+          "url": "https://ceramate.co.kr/main/index.php"
+        },
+        {
+          "name": "클레이어",
+          "url": "https://clayer.co.kr/"
+        },
+        {
+          "name": "동양세라믹스",
+          "url": "https://www.doyoceramics.co.kr/"
+        }
+      ]
+    },
+    {
+      "name": "서예·한자",
+      "sites": []
+    },
+    {
       "name": "제주·여행",
       "sites": [
         {
@@ -69,7 +86,7 @@
       ]
     },
     {
-      "name": "책·필기·인문학",
+      "name": "책·필기",
       "sites": [
         {
           "name": "한국사DB",
@@ -93,14 +110,6 @@
           "url": "https://plato.stanford.edu"
         }
       ]
-    },
-    {
-      "name": "도자기·도예",
-      "sites": []
-    },
-    {
-      "name": "서예·한자",
-      "sites": []
     },
     {
       "name": "음악·사진·동영상",
@@ -147,6 +156,10 @@
           "url": "https://mail.google.com"
         }
       ]
+    },
+    {
+      "name": "목공",
+      "sites": []
     }
   ],
   "topics": [
@@ -238,6 +251,13 @@
       {
         "name": "유튜브",
         "url": "https://www.youtube.com"
+      },
+      {
+        "name": "스포티파이",
+        "url": "https://open.spotify.com/intl-ko/"
+      },
+      {
+        "sep": true
       },
       {
         "name": "Claude",
@@ -342,6 +362,10 @@
     {
       "e": "insta",
       "q": "제주도"
+    },
+    {
+      "e": "youtube",
+      "q": "도예"
     }
   ],
   "customEngines": [
@@ -364,5 +388,6 @@
       "custom": true
     }
   ],
-  "hiddenEngines": []
+  "hiddenEngines": [],
+  "rev": 1793949527805
 }
