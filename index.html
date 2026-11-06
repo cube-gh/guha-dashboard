@@ -239,6 +239,17 @@ body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
 #engines .chip:hover,.news .topics .chip:hover{border-color:var(--accent)}
 #engines .chip.on,.news .topics .chip.on{color:#fff;border-color:var(--accent)}
 .news-head h2 .ntitle{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:0}
+/* 양옆 아이콘 존 구분선 */
+.dsep{position:relative;width:44px;height:14px;display:flex;align-items:center;justify-content:center;flex:none}
+:root{--sep-dark:rgba(90,70,110,.16);--sep-light:rgba(255,255,255,.95)}
+@media (prefers-color-scheme:dark){:root{--sep-dark:rgba(0,0,0,.55);--sep-light:rgba(255,255,255,.07)}}
+.dsep i{display:block;width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--sep-dark) 25%,var(--sep-dark) 75%,transparent);box-shadow:0 1px 0 var(--sep-light)}
+.dsep .x{display:none;position:absolute;top:-4px;right:0;width:16px;height:16px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:11px;line-height:16px;padding:0;cursor:pointer}
+body.edit .dsep{cursor:grab;height:20px;border-radius:8px;outline:1px dashed var(--line)}
+body.edit .dsep .x{display:block}
+.dsepadd{margin-top:8px!important;height:28px!important}
+.dsepadd i{display:block;width:20px;height:1.5px;background:var(--sub);border-radius:2px}
+@media (max-width:900px){.dsep{width:14px;height:44px}.dsep i{width:1px;height:30px;background:linear-gradient(180deg,transparent,var(--sep-dark) 25%,var(--sep-dark) 75%,transparent);box-shadow:1px 0 0 var(--sep-light)}body.edit .dsep{width:20px;height:44px}.dsepadd{margin:0 0 0 8px!important;width:28px!important;height:44px!important}.dsepadd i{width:1.5px;height:20px}}
 </style>
 </head>
 <body class="locked">
@@ -282,7 +293,7 @@ body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
   <div class="drag-tip">✋ 카테고리 제목, 사이트, 양옆 아이콘, 검색처(+ 로 추가, × 로 숨기기), 뉴스 주제를 끌어서 순서를 바꿀 수 있어요. 사이트와 아이콘을 누르면 이름·주소를 고칠 수 있어요. 사이트는 다른 카테고리로, 양옆 아이콘은 반대편 존으로도 옮길 수 있어요.</div>
 
   <div class="main">
-  <nav class="dock l" id="dock0" aria-label="왼쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button></nav>
+  <nav class="dock l" id="dock0" aria-label="왼쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button><button class="dadd dsepadd edit-only" title="구분선 추가"><i></i></button></nav>
   <section class="search">
     <div class="engines" id="engines"></div>
     <form class="sbox" id="sform">
@@ -314,7 +325,7 @@ body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
     </section>
     </aside>
   </div>
-  <nav class="dock r" id="dock1" aria-label="오른쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button></nav>
+  <nav class="dock r" id="dock1" aria-label="오른쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button><button class="dadd dsepadd edit-only" title="구분선 추가"><i></i></button></nav>
   </div>
   <footer class="foot">2026.11 Editor by <b>GUHA</b></footer>
 </div>
@@ -912,6 +923,12 @@ function renderDocks(){
   S.docks.forEach((list, k) => {
     const box = $('dock' + k).querySelector('.dock-items'); box.innerHTML = '';
     list.forEach((st, i) => {
+      if (st.sep){
+        const sp = el('div', 'dsep'); sp.dataset.k = k; sp.dataset.i = i; sp.setAttribute('role', 'separator');
+        const x = el('button', 'x', '×'); x.title = '구분선 삭제';
+        x.onclick = ev => { ev.stopPropagation(); list.splice(i, 1); save(); renderDocks(); };
+        sp.append(el('i'), x); box.append(sp); return;
+      }
       const a = el('a', 'dtile'); a.href = st.url; a.target = '_blank'; a.rel = 'noopener';
       a.dataset.k = k; a.dataset.i = i; a.dataset.name = st.name; a.setAttribute('aria-label', st.name);
       a.style.setProperty('--tint', `var(--p${i % 5 + 1})`);
@@ -927,10 +944,13 @@ function renderDocks(){
 }
 function syncDocks(){
   const old = S.docks.map(l => l);
-  S.docks = [0, 1].map(k => [...$('dock' + k).querySelectorAll('.dtile')].map(a => old[+a.dataset.k][+a.dataset.i]));
+  S.docks = [0, 1].map(k => [...$('dock' + k).querySelectorAll('.dtile, .dsep')].map(a => old[+a.dataset.k][+a.dataset.i]));
   save(); renderDocks();
 }
-[0, 1].forEach(k => { $('dock' + k).querySelector('.dadd').onclick = () => openSite('d:' + k); });
+[0, 1].forEach(k => {
+  $('dock' + k).querySelector('.dadd:not(.dsepadd)').onclick = () => openSite('d:' + k);
+  $('dock' + k).querySelector('.dsepadd').onclick = () => { S.docks[k].push({ sep:true }); save(); renderDocks(); };
+});
 const tip = $('tip');
 document.addEventListener('mouseover', e => {
   const a = e.target.closest('.dtile');

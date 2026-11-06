@@ -1,0 +1,368 @@
+{
+  "engine": "google",
+  "cats": [
+    {
+      "name": "자주 가는 곳",
+      "sites": [
+        {
+          "name": "네이버",
+          "url": "https://www.naver.com"
+        },
+        {
+          "name": "유튜브",
+          "url": "https://www.youtube.com"
+        },
+        {
+          "name": "기상청 날씨",
+          "url": "https://www.weather.go.kr"
+        }
+      ]
+    },
+    {
+      "name": "AI·작업 도구",
+      "sites": [
+        {
+          "name": "Claude",
+          "url": "https://claude.ai"
+        },
+        {
+          "name": "쳇지피티",
+          "url": "https://chatgpt.com/"
+        },
+        {
+          "name": "제미나이",
+          "url": "https://gemini.google.com/app"
+        },
+        {
+          "name": "유튜브 요약",
+          "url": "https://livewiki.com/ko"
+        },
+        {
+          "name": "GitHub",
+          "url": "https://github.com"
+        },
+        {
+          "name": "Supabase",
+          "url": "https://supabase.com"
+        }
+      ]
+    },
+    {
+      "name": "제주·여행",
+      "sites": [
+        {
+          "name": "비짓제주",
+          "url": "https://www.visitjeju.net"
+        },
+        {
+          "name": "제주관광공사",
+          "url": "https://ijto.or.kr"
+        },
+        {
+          "name": "대한민국 구석구석",
+          "url": "https://korean.visitkorea.or.kr"
+        },
+        {
+          "name": "카카오맵",
+          "url": "https://map.kakao.com"
+        }
+      ]
+    },
+    {
+      "name": "책·필기·인문학",
+      "sites": [
+        {
+          "name": "한국사DB",
+          "url": "https://db.history.go.kr"
+        },
+        {
+          "name": "우리역사넷",
+          "url": "https://contents.history.go.kr"
+        },
+        {
+          "name": "RISS 논문",
+          "url": "https://www.riss.kr",
+          "icon": "iconify:mdi:star"
+        },
+        {
+          "name": "국립중앙도서관",
+          "url": "https://www.nl.go.kr"
+        },
+        {
+          "name": "스탠퍼드 철학백과",
+          "url": "https://plato.stanford.edu"
+        }
+      ]
+    },
+    {
+      "name": "도자기·도예",
+      "sites": []
+    },
+    {
+      "name": "서예·한자",
+      "sites": []
+    },
+    {
+      "name": "음악·사진·동영상",
+      "sites": []
+    },
+    {
+      "name": "목공·공예",
+      "sites": []
+    },
+    {
+      "name": "쇼핑몰",
+      "sites": []
+    },
+    {
+      "name": "컴퓨터",
+      "sites": []
+    },
+    {
+      "name": "개인·기타",
+      "sites": [
+        {
+          "name": "새롬 행사 캘린더",
+          "url": "https://cube-gh.github.io/jeju-saerom/"
+        },
+        {
+          "name": "거래처 연락처",
+          "url": "https://cube-gh.github.io/partners/",
+          "icon": "iconify:mdi:cellphone"
+        },
+        {
+          "name": "필사를 위한 시선",
+          "url": "https://cube-gh.github.io/sisup/"
+        },
+        {
+          "name": "역사교실 자료실",
+          "url": "https://cube-gh.github.io/historyclass/"
+        },
+        {
+          "name": "구글 드라이브",
+          "url": "https://drive.google.com"
+        },
+        {
+          "name": "Gmail",
+          "url": "https://mail.google.com"
+        }
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "name": "제주",
+      "q": "제주도"
+    },
+    {
+      "name": "여행·관광",
+      "q": "여행업계 OR 관광업계"
+    },
+    {
+      "name": "IT·AI",
+      "q": "인공지능 OR 생성형AI"
+    },
+    {
+      "name": "정치·경제",
+      "q": "정치·경제"
+    },
+    {
+      "name": "스포츠",
+      "q": "스포츠"
+    }
+  ],
+  "engineOrder": [
+    "google",
+    "youtube",
+    "daum",
+    "naver",
+    "cmw2rvxq8",
+    "news",
+    "namu",
+    "wiki",
+    "scholar",
+    "riss",
+    "map",
+    "cmw2v06tf",
+    "dict",
+    "papago",
+    "cmw211k4t"
+  ],
+  "topics2": [
+    {
+      "name": "주요 헤드라인",
+      "q": ""
+    },
+    {
+      "name": "경제",
+      "q": "경제 OR 증시 OR 환율"
+    },
+    {
+      "name": "교육",
+      "q": "교육부 OR 학교 OR 교사"
+    },
+    {
+      "name": "문화·전시",
+      "q": "전시회 OR 공연 OR 문화행사"
+    }
+  ],
+  "newsTitles": [
+    "실시간 뉴스",
+    "오늘의 소식"
+  ],
+  "docks": [
+    [
+      {
+        "name": "애플",
+        "url": "https://www.apple.com/kr/"
+      },
+      {
+        "name": "컴퓨존",
+        "url": "https://www.compuzone.co.kr/main/main.htm"
+      },
+      {
+        "name": "아이베란다",
+        "url": "https://www.iveranda.com/"
+      },
+      {
+        "sep": true
+      },
+      {
+        "name": "1250",
+        "url": "https://1250.co.kr/"
+      },
+      {
+        "name": "스몰룸",
+        "url": "https://smartstore.naver.com/thesmallroom1984"
+      },
+      {
+        "name": "유튜브",
+        "url": "https://www.youtube.com"
+      },
+      {
+        "name": "Claude",
+        "url": "https://claude.ai"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com"
+      },
+      {
+        "name": "네이버",
+        "url": "https://www.naver.com"
+      },
+      {
+        "name": "지도",
+        "url": "https://map.naver.com/p?c=15.00,0,0,0,dh"
+      }
+    ],
+    [
+      {
+        "name": "제주도청",
+        "url": "https://www.jeju.go.kr/index.htm"
+      },
+      {
+        "name": "제주시청",
+        "url": "https://www.jejusi.go.kr/index.ac"
+      },
+      {
+        "name": "서귀포시청",
+        "url": "https://www.seogwipo.go.kr/"
+      },
+      {
+        "sep": true
+      },
+      {
+        "name": "날씨",
+        "url": "https://weather.naver.com/today/14110137/",
+        "icon": "iconify:mdi:weather-partly-cloudy"
+      },
+      {
+        "name": "기상청 날씨",
+        "url": "https://www.weather.go.kr"
+      },
+      {
+        "name": "제주 CCTV",
+        "url": "https://www.jejuits.go.kr/jido/mainView.do?DEVICE_KIND=CCTV",
+        "icon": "iconify:lucide:cctv"
+      },
+      {
+        "name": "나우제주",
+        "url": "http://www.nowjejuplus.co.kr/cctv/15"
+      },
+      {
+        "sep": true
+      },
+      {
+        "name": "카카오맵",
+        "url": "https://map.kakao.com"
+      },
+      {
+        "name": "비짓제주",
+        "url": "https://www.visitjeju.net"
+      },
+      {
+        "name": "필사를 위한 시선",
+        "url": "https://cube-gh.github.io/sisup/",
+        "icon": "iconify:lucide:book-open"
+      },
+      {
+        "name": "행사 일정 캘린더",
+        "url": "https://cube-gh.github.io/jeju-saerom/",
+        "icon": "iconify:ph:calendar-fill"
+      },
+      {
+        "name": "거래처 연락처",
+        "url": "https://cube-gh.github.io/partners/",
+        "icon": "iconify:ph:phone-fill"
+      }
+    ]
+  ],
+  "rotate": [
+    3,
+    3
+  ],
+  "saved": [
+    {
+      "e": "youtube",
+      "q": "클로드"
+    },
+    {
+      "e": "youtube",
+      "q": "빔프로젝트"
+    },
+    {
+      "e": "gimg",
+      "q": "제주도 여행"
+    },
+    {
+      "e": "insta",
+      "q": "여행"
+    },
+    {
+      "e": "insta",
+      "q": "제주도"
+    }
+  ],
+  "customEngines": [
+    {
+      "id": "cmw211k4t",
+      "name": "Deepl",
+      "url": "https://www.deepl.com/ko/translator#auto/ko/%s",
+      "custom": true
+    },
+    {
+      "id": "cmw2rvxq8",
+      "name": "네이버맵",
+      "url": "https://map.naver.com/p/search/%s",
+      "custom": true
+    },
+    {
+      "id": "cmw2v06tf",
+      "name": "한자사전",
+      "url": "https://ko.dict.naver.com/#/search?query=%s",
+      "custom": true
+    }
+  ],
+  "hiddenEngines": []
+}
