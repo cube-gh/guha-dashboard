@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f7f4f1">
+<script>try{var th=localStorage.getItem('myDash.theme');if(th==='light'||th==='dark')document.documentElement.setAttribute('data-theme',th);}catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GUHA">
@@ -21,13 +22,20 @@
   --hover:rgba(255,255,255,.75);
   --shadow:0 1px 2px rgba(90,70,110,.04),0 10px 30px rgba(90,70,110,.07);
   --blob1:#efe6f7;--blob2:#e4eef8;--blob3:#fbe9ec;--logo-a:#8a7ab8;--logo-b:#c98aa0}
-@media (prefers-color-scheme:dark){:root{
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#1b1a20;--card:#24232b;--ink:#ece8f2;--sub:#a29cad;--line:#34323d;
   --accent:#b8aade;--accent-strong:#c9bdea;--accent-soft:#2f2b3d;--danger:#e2a0a0;
   --p1:#252a35;--p2:#30262b;--p3:#232e29;--p4:#302c22;--p5:#2b2635;
   --hover:rgba(255,255,255,.06);
   --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.25);
   --blob1:#2a2338;--blob2:#1f2736;--blob3:#30232a;--logo-a:#cdc1ee;--logo-b:#efb9c8}}
+:root[data-theme="dark"]{
+  --bg:#1b1a20;--card:#24232b;--ink:#ece8f2;--sub:#a29cad;--line:#34323d;
+  --accent:#b8aade;--accent-strong:#c9bdea;--accent-soft:#2f2b3d;--danger:#e2a0a0;
+  --p1:#252a35;--p2:#30262b;--p3:#232e29;--p4:#302c22;--p5:#2b2635;
+  --hover:rgba(255,255,255,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.25);
+  --blob1:#2a2338;--blob2:#1f2736;--blob3:#30232a;--logo-a:#cdc1ee;--logo-b:#efb9c8}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;line-height:1.5;
   background:radial-gradient(900px 500px at 8% -5%,var(--blob1),transparent 60%),radial-gradient(800px 500px at 100% 10%,var(--blob2),transparent 60%),radial-gradient(700px 500px at 50% 110%,var(--blob3),transparent 60%),var(--bg);background-attachment:fixed}
@@ -213,7 +221,8 @@ body.locked #gate{display:flex;min-height:100vh;align-items:center;justify-conte
 }
 /* 카테고리 글씨: 옛 블로그 느낌의 굴림 비트맵 글꼴 + 검정 글자 */
 :root{--retro-font:"굴림",Gulim,"Galmuri11","돋움",Dotum,sans-serif;--retro-ink:#000}
-@media (prefers-color-scheme:dark){:root{--retro-ink:#f2f2f2}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--retro-ink:#f2f2f2}}
+:root[data-theme="dark"]{--retro-ink:#f2f2f2}
 .cat h3 .name{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.1px}
 .site span{font-family:var(--retro-font);font-size:12px;color:var(--retro-ink);letter-spacing:0;-webkit-font-smoothing:none;font-smooth:never}
 .clock small{font-size:.5em;font-weight:400;letter-spacing:0;margin-right:5px;color:var(--sub)}
@@ -242,7 +251,8 @@ body.edit .cat h3 .chev,body.edit .cat h3 .cnt{display:none}
 /* 양옆 아이콘 존 구분선 */
 .dsep{position:relative;width:44px;height:14px;display:flex;align-items:center;justify-content:center;flex:none}
 :root{--sep-dark:rgba(90,70,110,.16);--sep-light:rgba(255,255,255,.95)}
-@media (prefers-color-scheme:dark){:root{--sep-dark:rgba(0,0,0,.55);--sep-light:rgba(255,255,255,.07)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sep-dark:rgba(0,0,0,.55);--sep-light:rgba(255,255,255,.07)}}
+:root[data-theme="dark"]{--sep-dark:rgba(0,0,0,.55);--sep-light:rgba(255,255,255,.07)}
 .dsep i{display:block;width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--sep-dark) 25%,var(--sep-dark) 75%,transparent);box-shadow:0 1px 0 var(--sep-light)}
 .dsep .x{display:none;position:absolute;top:-4px;right:0;width:16px;height:16px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:11px;line-height:16px;padding:0;cursor:pointer}
 body.edit .dsep{cursor:grab;height:20px;border-radius:8px;outline:1px dashed var(--line)}
@@ -280,6 +290,37 @@ body.edit .ssep .x{display:block}
 body.edit .addrow.edit-only{display:flex!important;width:100%}
 .site:hover span{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:currentColor}
 .cats .card:hover,.cats .card{transform:none!important}
+/* 밤·낮 화면 바꾸기 버튼 */
+.themebtn{width:34px;height:34px;padding:0;display:inline-grid;place-items:center;font-size:16px;line-height:1;color:var(--accent-strong)}
+.themebtn .sun,.themebtn .moon{grid-area:1/1;transition:opacity .25s,transform .35s}
+.themebtn .sun{opacity:0;transform:rotate(-60deg) scale(.6)}
+:root[data-theme="dark"] .themebtn .sun{opacity:1;transform:none}
+:root[data-theme="dark"] .themebtn .moon{opacity:0;transform:rotate(60deg) scale(.6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .themebtn .sun{opacity:1;transform:none}:root:not([data-theme="light"]) .themebtn .moon{opacity:0;transform:rotate(60deg) scale(.6)}}
+body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-color .3s}
+/* 검색처·뉴스 주제 버튼: 은은한 광택의 고급 알약 버튼 */
+:root{--chip-hl:rgba(255,255,255,.9);--chip-sh:rgba(90,70,110,.07);--chip-on-a:#b6a8e0;--chip-on-b:#8b7bbf}
+:root[data-theme="dark"]{--chip-hl:rgba(255,255,255,.06);--chip-sh:rgba(0,0,0,.35);--chip-on-a:#a898d6;--chip-on-b:#7464a8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--chip-hl:rgba(255,255,255,.06);--chip-sh:rgba(0,0,0,.35);--chip-on-a:#a898d6;--chip-on-b:#7464a8}}
+#engines .chip,.news .topics .chip{
+  background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 88%,var(--accent-soft)));
+  border:1px solid color-mix(in srgb,var(--line) 75%,var(--accent));
+  color:var(--ink);font-weight:500;letter-spacing:.2px;
+  box-shadow:inset 0 1px 0 var(--chip-hl),0 1px 3px var(--chip-sh);
+  transition:background .25s,border-color .25s,color .25s,box-shadow .25s}
+#engines .chip{padding:6px 15px}
+#engines .chip:hover,.news .topics .chip:hover{
+  color:var(--accent-strong);border-color:color-mix(in srgb,var(--accent) 60%,var(--line));
+  background:linear-gradient(180deg,var(--card),var(--accent-soft));
+  box-shadow:inset 0 1px 0 var(--chip-hl),0 3px 10px color-mix(in srgb,var(--accent) 22%,transparent)}
+#engines .chip.on,.news .topics .chip.on{
+  color:#fff;font-weight:600;border-color:transparent;
+  background:linear-gradient(135deg,var(--chip-on-a),var(--chip-on-b));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 12px color-mix(in srgb,var(--chip-on-b) 40%,transparent)}
+/* 카테고리 이름: 또렷하고 고급스러운 제목 + 라벤더 세로 막대 */
+.cat h3 .name{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif!important;font-size:15px!important;font-weight:650!important;letter-spacing:-.3px!important;color:var(--ink)!important;display:flex;align-items:center;gap:9px;line-height:1.3}
+.cat h3 .name::before{content:"";flex:none;width:3px;height:15px;border-radius:3px;background:linear-gradient(180deg,var(--chip-on-a),var(--chip-on-b));box-shadow:0 1px 4px color-mix(in srgb,var(--chip-on-b) 35%,transparent)}
+.cat h3{margin-left:2px}
 </style>
 </head>
 <body class="locked">
@@ -314,6 +355,7 @@ body.edit .addrow.edit-only{display:flex!important;width:100%}
     <div class="toolbar">
       <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
       <button class="btn" id="editBtn">편집</button>
+      <button class="btn themebtn" id="themeBtn" type="button" title="밤·낮 화면 바꾸기" aria-label="밤·낮 화면 바꾸기"><span class="sun">☀</span><span class="moon">☾</span></button>
     </div>
   </header>
 
@@ -817,6 +859,17 @@ async function saveToFile(){
     return h.name;
   }catch(err){ return null; }
 }
+
+/* 밤·낮 화면 바꾸기: 지금 보이는 반대 모드로 바꾸고 이 기기에 기억 */
+function isDarkNow(){ const th = document.documentElement.getAttribute('data-theme'); return th ? th === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+function syncThemeMeta(){ const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = isDarkNow() ? '#1b1a20' : '#f7f4f1'; $('themeBtn').title = isDarkNow() ? '낮 화면으로' : '밤 화면으로'; }
+$('themeBtn').onclick = () => {
+  const next = isDarkNow() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('myDash.theme', next); }catch(e){}
+  syncThemeMeta();
+};
+syncThemeMeta();
 $('editBtn').onclick = async () => {
   const on = document.body.classList.toggle('edit');
   $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
