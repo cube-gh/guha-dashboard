@@ -1,0 +1,83 @@
+# 매일 아침 세계 인기 사이트 TOP10을 받아 top10.json으로 저장하는 자동 작업
+name: 세계 인기 사이트 TOP10 갱신
+
+on:
+  schedule:
+    - cron: "17 21 * * *"   # 매일 한국 시간 오전 6시 17분
+  workflow_dispatch:        # Actions 탭에서 직접 실행도 가능
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: TOP10 받아오기
+        run: |
+          python3 - <<'PY'
+          import csv, io, json, re, urllib.request, zipfile, datetime
+
+          UA = {"User-Agent": "guha-dashboard-top10/1.0"}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
+                  return r.read()
+
+          # 1) Tranco 최신 순위 목록 (상위 1000개)
+          rows = []
+          try:
+              info = json.loads(get("https://tranco-list.eu/api/lists/date/latest"))
+              data = get(f"https://tranco-list.eu/download/{info['list_id']}/1000").decode()
+              rows = list(csv.reader(io.StringIO(data)))
+          except Exception as e:
+              print("API 실패, 전체 목록으로 대신:", e)
+              z = zipfile.ZipFile(io.BytesIO(get("https://tranco-list.eu/top-1m.csv.zip")))
+              with z.open(z.namelist()[0]) as f:
+                  for i, line in enumerate(io.TextIOWrapper(f)):
+                      if i >= 1000: break
+                      rows.append(line.strip().split(","))
+
+          # 2) 사람이 직접 방문하지 않는 서버·광고·CDN 주소는 빼기
+          skip = re.compile(r"(amazonaws|akamai|akadns|edgekey|edgesuite|cloudfront|cloudflare|fastly|"
+                            r"googleapis|gstatic|googlevideo|googleusercontent|googlesyndication|googletagmanager|"
+                            r"google-analytics|doubleclick|googleadservices|gvt\d|ggpht|app-measurement|"
+                            r"fbcdn|cdninstagram|facebook\.net|whatsapp\.net|twimg|ytimg|tiktokcdn|byte(dance|fcdn|img)|"
+                            r"windowsupdate|msftncsi|msedge\.net|azure|trafficmanager|office\.net|microsoftonline|"
+                            r"windows\.net|live\.net|digicert|root-servers|gtld-servers|apple-dns|aaplimg|mzstatic|"
+                            r"icloud-content|ntp\.org|cdn|dns|sentry|crashlytics|appsflyer|adjust\.com|scorecardresearch|"
+                            r"criteo|adnxs|rubiconproject|pubmatic|taboola|outbrain|branch\.io|segment\.(io|com)|"
+                            r"a2z\.com|amazon-adsystem|media-amazon|ssl-images-amazon|yahoodns|unity3d|"
+                            r"googledomains|1e100|gmail\.com|youtu\.be|spotifycdn|nflx(video|ext|so|img)|"
+                            r"ui\.com|pki\.goog|ocsp|xboxlive)", re.I)
+          names = {"google.com":"Google","youtube.com":"YouTube","facebook.com":"Facebook","instagram.com":"Instagram",
+                   "microsoft.com":"Microsoft","apple.com":"Apple","amazon.com":"Amazon","wikipedia.org":"Wikipedia",
+                   "twitter.com":"X (Twitter)","x.com":"X","linkedin.com":"LinkedIn","netflix.com":"Netflix",
+                   "live.com":"Outlook","bing.com":"Bing","yahoo.com":"Yahoo","baidu.com":"Baidu","tiktok.com":"TikTok",
+                   "whatsapp.com":"WhatsApp","reddit.com":"Reddit","chatgpt.com":"ChatGPT","openai.com":"OpenAI",
+                   "office.com":"Office","github.com":"GitHub","pinterest.com":"Pinterest","yandex.ru":"Yandex",
+                   "zoom.us":"Zoom","spotify.com":"Spotify","qq.com":"QQ","naver.com":"NAVER","wordpress.org":"WordPress",
+                   "adobe.com":"Adobe","vk.com":"VK","duckduckgo.com":"DuckDuckGo","telegram.org":"Telegram",
+                   "discord.com":"Discord","twitch.tv":"Twitch","ebay.com":"eBay","samsung.com":"Samsung"}
+          top = []
+          for r in rows:
+              if len(r) < 2: continue
+              d = r[1].strip().lower()
+              if skip.search(d) or d in [t["domain"] for t in top]: continue
+              top.append({"rank": len(top) + 1, "domain": d, "name": names.get(d, d)})
+              if len(top) == 10: break
+
+          kst = datetime.datetime.utcnow() + datetime.timedelta(hours=9)
+          out = {"date": kst.strftime("%Y-%m-%d"), "source": "Tranco (tranco-list.eu)", "sites": top}
+          json.dump(out, open("top10.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+          print(json.dumps(out, ensure_ascii=False, indent=2))
+          PY
+
+      - name: 바뀐 내용 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add top10.json
+          git diff --cached --quiet || git commit -m "TOP10 갱신 $(date -u +%F)"
+          git push
