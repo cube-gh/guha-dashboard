@@ -359,7 +359,7 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
     </div>
   </header>
 
-  <div class="drag-tip">✋ 카테고리 제목, 사이트, 양옆 아이콘, 검색처(+ 로 추가, × 로 숨기기), 뉴스 주제를 끌어서 순서를 바꿀 수 있어요. 사이트와 아이콘을 누르면 이름·주소를 고칠 수 있어요. 사이트는 다른 카테고리로, 양옆 아이콘은 반대편 존으로도 옮길 수 있어요.</div>
+  <div class="drag-tip">✋ 카테고리 제목, 사이트, 양옆 아이콘, 검색처(+ 로 추가, 눌러서 이름·주소 수정, × 로 숨기기), 뉴스 주제를 끌어서 순서를 바꿀 수 있어요. 사이트와 아이콘을 누르면 이름·주소를 고칠 수 있어요. 사이트는 다른 카테고리로, 양옆 아이콘은 반대편 존으로도 옮길 수 있어요.</div>
 
   <div class="main">
   <nav class="dock l" id="dock0" aria-label="왼쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button><button class="dadd dsepadd edit-only" title="구분선 추가"><i></i></button></nav>
@@ -409,7 +409,7 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
 
 <dialog id="engDlg">
   <form id="engForm">
-    <h3>검색처 추가</h3>
+    <h3 id="eTitle">검색처 추가</h3>
     <label>이름</label>
     <input id="eName" placeholder="예: 쿠팡" required>
     <label>검색 결과 주소</label>
@@ -419,7 +419,7 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
     <div id="eHidden" class="dhidden"></div>
     <div class="row">
       <button class="btn" type="button" id="eCancel">취소</button>
-      <button class="btn pri" value="ok">추가</button>
+      <button class="btn pri" value="ok" id="eOk">추가</button>
     </div>
   </form>
 </dialog>
@@ -509,7 +509,7 @@ const DEFAULT = {
     [s('카카오맵','https://map.kakao.com'), s('파파고','https://papago.naver.com'), s('기상청 날씨','https://www.weather.go.kr'), s('비짓제주','https://www.visitjeju.net'), s('한국사DB','https://db.history.go.kr'), s('RISS 논문','https://www.riss.kr')]
   ]
 };
-function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; return v; }
+function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; v.engineEdits ||= {}; return v; }
 const ENGINES = [
   { id:'naver', home:'https://www.naver.com', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
   { id:'google', home:'https://www.google.com', name:'구글', url:'https://www.google.com/search?q=' },
@@ -532,7 +532,15 @@ const $ = id => document.getElementById(id);
 const isEdit = () => document.body.classList.contains('edit');
 const SO = {};
 function mkSort(elm, opts){ return window.Sortable ? Sortable.create(elm, Object.assign({ animation:180, ghostClass:'ghost', chosenClass:'chosen', disabled:!isEdit() }, opts)) : null; }
-function engPool(){ return [...ENGINES, ...S.customEngines]; }
+function engPool(){
+  const ed = S.engineEdits || {};
+  return [...ENGINES.map(e => {
+    const o = ed[e.id]; if (!o) return e;
+    const ch = { ...e, name: o.name || e.name };
+    if (o.url && o.url !== e.url){ ch.url = o.url; delete ch.home; }
+    return ch;
+  }), ...S.customEngines];
+}
 function engList(){
   const pool = engPool().filter(e => !S.hiddenEngines.includes(e.id)), o = S.engineOrder || [];
   return [...o.map(id => pool.find(e => e.id === id)).filter(Boolean), ...pool.filter(e => !o.includes(e.id))];
@@ -572,7 +580,7 @@ function renderEngines(){
     b.append(d);
     b.onclick = () => {
       S.engine = en.id; save(); renderEngines();
-      if (isEdit()) $('q').focus();
+      if (isEdit()){ openEngDlg(en); return; }
       else if ($('q').value.trim()) $('sform').requestSubmit();
       else window.open(engHome(en), '_blank', 'noopener');
     };
@@ -591,7 +599,17 @@ function renderHiddenEngines(){
     b.onclick = () => { S.hiddenEngines = S.hiddenEngines.filter(x => x !== en.id); save(); renderEngines(); refreshSpEng(); renderHiddenEngines(); };
     box.append(b); });
 }
-function openEngDlg(){ engErr(''); $('eName').value = ''; $('eUrl').value = ''; renderHiddenEngines(); $('engDlg').showModal(); $('eName').focus(); }
+let engEditId = null; // 수정 중인 검색처 id (없으면 새로 추가)
+function openEngDlg(edit){
+  engErr();
+  engEditId = edit && edit.id ? edit.id : null;
+  $('eTitle').textContent = engEditId ? '검색처 수정' : '검색처 추가';
+  $('eOk').textContent = engEditId ? '저장' : '추가';
+  $('eName').value = engEditId ? edit.name : '';
+  $('eUrl').value = engEditId ? (edit.url.includes('%s') ? edit.url.split('%s').join('GUHA') : edit.url + 'GUHA') : '';
+  if (engEditId) $('eHidden').innerHTML = ''; else renderHiddenEngines();
+  $('engDlg').showModal(); $('eName').focus();
+}
 /* 주소에 검색어가 안 보이거나 찾기 어려운 사이트는 주소만 넣어도 자동으로 맞춰 줌 */
 const ENGINE_PRESETS = {
   'deepl.com': 'https://www.deepl.com/ko/translator#auto/ko/%s',
@@ -619,7 +637,7 @@ function presetFor(url){
   const k = Object.keys(ENGINE_PRESETS).find(d => h === d || h.endsWith('.' + d));
   return k ? ENGINE_PRESETS[k] : null;
 }
-function engErr(m){ $('eErr').textContent = m; }
+function engErr(m){ $('eErr').textContent = m || ''; }
 $('engForm').onsubmit = ev => {
   ev.preventDefault(); engErr('');
   const name = $('eName').value.trim(); let url = $('eUrl').value.trim(); if (!name || !url) return;
@@ -629,6 +647,13 @@ $('engForm').onsubmit = ev => {
   if (!url.includes('%s')){
     engErr("주소에 'GUHA'가 들어 있지 않아요. 그 사이트에서 GUHA로 검색한 뒤, 결과 화면의 주소를 붙여 넣어 주세요. 검색어가 주소에 나타나지 않는 사이트는 검색처로 쓸 수 없어서 '사이트 추가'로 넣어야 해요.");
     $('eUrl').focus(); return;
+  }
+  if (engEditId){
+    const ce = S.customEngines.find(x => x.id === engEditId);
+    if (ce){ ce.name = name; ce.url = url; }
+    else { S.engineEdits = S.engineEdits || {}; S.engineEdits[engEditId] = { name, url }; }
+    engEditId = null; save();
+    $('engDlg').close(); renderEngines(); refreshSpEng(); return;
   }
   const id = 'c' + Date.now().toString(36);
   S.customEngines.push({ id, name, url, custom:true }); S.engine = id; save();

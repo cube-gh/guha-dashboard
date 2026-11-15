@@ -1,5 +1,5 @@
 {
-  "engine": "google",
+  "engine": "naver",
   "cats": [
     {
       "name": "종합",
@@ -153,14 +153,6 @@
         {
           "name": "역사교실 자료실",
           "url": "https://cube-gh.github.io/historyclass/"
-        },
-        {
-          "name": "구글 드라이브",
-          "url": "https://drive.google.com"
-        },
-        {
-          "name": "Gmail",
-          "url": "https://mail.google.com"
         }
       ]
     }
@@ -413,6 +405,10 @@
       "custom": true
     }
   ],
-  "hiddenEngines": [],
-  "rev": 1793958646130
+  "hiddenEngines": [
+    "scholar",
+    "riss"
+  ],
+  "rev": 1794709545927,
+  "engineEdits": {}
 }
