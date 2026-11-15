@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-15",
+  "source": "Tranco (tranco-list.eu)",
+  "sites": [
+    {
+      "rank": 1,
+      "domain": "google.com",
+      "name": "Google"
+    },
+    {
+      "rank": 2,
+      "domain": "ezviz7.com",
+      "name": "ezviz7.com"
+    },
+    {
+      "rank": 3,
+      "domain": "facebook.com",
+      "name": "Facebook"
+    },
+    {
+      "rank": 4,
+      "domain": "microsoft.com",
+      "name": "Microsoft"
+    },
+    {
+      "rank": 5,
+      "domain": "youtube.com",
+      "name": "YouTube"
+    },
+    {
+      "rank": 6,
+      "domain": "hicloudcam.com",
+      "name": "hicloudcam.com"
+    },
+    {
+      "rank": 7,
+      "domain": "apple.com",
+      "name": "Apple"
+    },
+    {
+      "rank": 8,
+      "domain": "instagram.com",
+      "name": "Instagram"
+    },
+    {
+      "rank": 9,
+      "domain": "twitter.com",
+      "name": "X (Twitter)"
+    },
+    {
+      "rank": 10,
+      "domain": "linkedin.com",
+      "name": "LinkedIn"
+    }
+  ]
+}
