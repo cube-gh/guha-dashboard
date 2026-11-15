@@ -1,56 +1,66 @@
 {
   "date": "2026-11-15",
-  "source": "Tranco (tranco-list.eu)",
+  "source": "Tranco (tranco-list.eu) · 주요 웹사이트 후보 중 순위",
   "sites": [
     {
       "rank": 1,
       "domain": "google.com",
-      "name": "Google"
+      "name": "Google",
+      "tranco": 1
     },
     {
       "rank": 2,
-      "domain": "ezviz7.com",
-      "name": "ezviz7.com"
+      "domain": "facebook.com",
+      "name": "Facebook",
+      "tranco": 5
     },
     {
       "rank": 3,
-      "domain": "facebook.com",
-      "name": "Facebook"
+      "domain": "youtube.com",
+      "name": "YouTube",
+      "tranco": 10
     },
     {
       "rank": 4,
-      "domain": "microsoft.com",
-      "name": "Microsoft"
+      "domain": "instagram.com",
+      "name": "Instagram",
+      "tranco": 14
     },
     {
       "rank": 5,
-      "domain": "youtube.com",
-      "name": "YouTube"
+      "domain": "x.com",
+      "name": "X",
+      "tranco": 16
     },
     {
       "rank": 6,
-      "domain": "hicloudcam.com",
-      "name": "hicloudcam.com"
+      "domain": "linkedin.com",
+      "name": "LinkedIn",
+      "tranco": 17
     },
     {
       "rank": 7,
-      "domain": "apple.com",
-      "name": "Apple"
+      "domain": "mail.ru",
+      "name": "Mail.ru",
+      "tranco": 27
     },
     {
       "rank": 8,
-      "domain": "instagram.com",
-      "name": "Instagram"
+      "domain": "amazon.com",
+      "name": "Amazon",
+      "tranco": 29
     },
     {
       "rank": 9,
-      "domain": "twitter.com",
-      "name": "X (Twitter)"
+      "domain": "office.com",
+      "name": "Microsoft 365",
+      "tranco": 30
     },
     {
       "rank": 10,
-      "domain": "linkedin.com",
-      "name": "LinkedIn"
+      "domain": "github.com",
+      "name": "GitHub",
+      "tranco": 34
     }
   ]
 }
