@@ -1,5 +1,5 @@
 {
-  "engine": "news",
+  "engine": "cmw2v06tf",
   "cats": [
     {
       "name": "종합",
@@ -445,7 +445,7 @@
     {
       "id": "cmw2v06tf",
       "name": "한자사전",
-      "url": "https://ko.dict.naver.com/#/search?query=%s",
+      "url": "https://hanja.dict.naver.com/#/search?query=%s",
       "custom": true
     }
   ],
@@ -453,6 +453,6 @@
     "scholar",
     "riss"
   ],
-  "rev": 1794710382747,
+  "rev": 1794719584845,
   "engineEdits": {}
 }
