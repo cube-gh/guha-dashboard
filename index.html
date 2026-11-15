@@ -321,6 +321,31 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
 .cat h3 .name{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif!important;font-size:15px!important;font-weight:650!important;letter-spacing:-.3px!important;color:var(--ink)!important;display:flex;align-items:center;gap:9px;line-height:1.3}
 .cat h3 .name::before{content:"";flex:none;width:3px;height:15px;border-radius:3px;background:linear-gradient(180deg,var(--chip-on-a),var(--chip-on-b));box-shadow:0 1px 4px color-mix(in srgb,var(--chip-on-b) 35%,transparent)}
 .cat h3{margin-left:2px}
+/* 오늘의 세계 인기 사이트 TOP10 */
+.top10{margin:6px 0 30px;padding:0 2px}
+.t10-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 6px 12px}
+.t10-head h2{margin:0;font-size:14px;font-weight:600;letter-spacing:-.2px;color:var(--ink);display:flex;align-items:center;gap:9px}
+.t10-head h2::before{content:"";width:3px;height:15px;border-radius:3px;background:linear-gradient(180deg,var(--chip-on-a),var(--chip-on-b))}
+.t10-head h2 b{font-weight:700;background:linear-gradient(135deg,var(--chip-on-a),var(--chip-on-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.t10-date{font-size:11px;color:var(--sub)}
+.t10-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:10px}
+.t10-list a{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px 11px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:inset 0 1px 0 var(--chip-hl),0 1px 3px var(--chip-sh);text-decoration:none;color:var(--ink);transition:border-color .25s,box-shadow .25s}
+.t10-list a:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:inset 0 1px 0 var(--chip-hl),0 4px 14px color-mix(in srgb,var(--accent) 20%,transparent)}
+.t10-list .rk{position:absolute;top:6px;left:8px;font-size:11px;font-weight:700;color:var(--sub);font-variant-numeric:tabular-nums}
+.t10-list li:nth-child(-n+3) .rk{background:linear-gradient(135deg,var(--chip-on-a),var(--chip-on-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.t10-list .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line)}
+.t10-list .ic img{width:20px;height:20px;border-radius:4px}
+.t10-list .nm{font-size:12px;font-weight:500;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:1100px){.t10-list{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:600px){.t10-list{display:flex;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.t10-list::-webkit-scrollbar{display:none}.t10-list li{flex:0 0 92px}}
+@media (max-width:600px){.t10-head{flex-wrap:wrap;row-gap:2px}.t10-head h2{white-space:nowrap;font-size:13px}.t10-date{width:100%;margin-left:12px}}
+/* TOP10: 순위 숫자 + 사이트 이름만 작게 한 줄 */
+.top10{margin:4px 0 22px;padding:0 8px}
+.t10-line{list-style:none;margin:0;padding:0;display:flex;justify-content:space-between;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.t10-line a{display:inline-flex;align-items:baseline;gap:5px;text-decoration:none;color:var(--ink);font-size:12px;white-space:nowrap}
+.t10-line a b{font-size:11px;font-weight:700;color:var(--accent-strong);font-variant-numeric:tabular-nums}
+.t10-line a:hover span{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+@media (max-width:600px){.t10-line{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;padding-bottom:2px}.t10-line::-webkit-scrollbar{display:none}}
 </style>
 </head>
 <body class="locked">
@@ -371,6 +396,9 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
     <div class="hint"><button type="button" class="linkbtn" id="savedOpen">☆ 자주 쓰는 검색어 목록</button></div>
   </section>
 
+  <section class="top10" aria-label="오늘의 세계 인기 사이트 TOP 10">
+    <ol class="t10-line" id="t10List"></ol>
+  </section>
   <div class="grid">
     <section class="cats" id="cats"></section>
     <aside class="newscol">
@@ -1155,6 +1183,25 @@ SO.saved = mkSort($('spList'), { disabled:false, filter:'.x, .sp-empty', prevent
 
 function renderAll(){ renderEngines(); renderCats(); renderDocks(); renderSaved(); PANELS.forEach(P => { renderTopics(P); loadNews(P); }); }
 renderAll();
+/* 오늘의 세계 인기 사이트 TOP10 (깃허브 자동 작업이 매일 만드는 top10.json) */
+const T10_FALLBACK = { date:'', source:'기본 목록', sites:['google.com','youtube.com','facebook.com','instagram.com','chatgpt.com','wikipedia.org','x.com','whatsapp.com','reddit.com','bing.com'].map((d, i) => ({ rank:i + 1, domain:d })) };
+const T10_NAMES = { 'google.com':'Google','youtube.com':'YouTube','facebook.com':'Facebook','instagram.com':'Instagram','chatgpt.com':'ChatGPT','wikipedia.org':'Wikipedia','x.com':'X','twitter.com':'X (Twitter)','whatsapp.com':'WhatsApp','reddit.com':'Reddit','bing.com':'Bing','microsoft.com':'Microsoft','apple.com':'Apple','amazon.com':'Amazon','linkedin.com':'LinkedIn','netflix.com':'Netflix','live.com':'Outlook','yahoo.com':'Yahoo','baidu.com':'Baidu','tiktok.com':'TikTok' };
+function renderTop10(d, live){
+  const ol = $('t10List'); ol.innerHTML = '';
+  ol.title = live && d.date ? '오늘의 세계 인기 사이트 TOP 10 · ' + d.date.replace(/-/g, '.') + ' 기준 (Tranco)' : '오늘의 세계 인기 사이트 TOP 10';
+  (d.sites || []).slice(0, 10).forEach((s, i) => {
+    const li = el('li'), a = el('a'); a.href = 'https://' + s.domain; a.target = '_blank'; a.rel = 'noopener'; a.title = s.domain;
+    a.append(el('b', null, s.rank || i + 1), el('span', null, s.name && s.name !== s.domain ? s.name : (T10_NAMES[s.domain] || s.domain)));
+    li.append(a); ol.append(li);
+  });
+}
+async function loadTop10(){
+  renderTop10(T10_FALLBACK, false);
+  const url = /^https?:$/.test(location.protocol) ? 'top10.json' : 'https://cube-gh.github.io/guha-dashboard/top10.json';
+  try{ const r = await fetch(url + '?t=' + Date.now(), { cache:'no-store' }); if (!r.ok) return; const d = await r.json(); if (d && d.sites && d.sites.length) renderTop10(d, true); }catch(e){}
+}
+loadTop10();
+
 syncFromServer();
 SO.eng = mkSort($('engines'), { draggable:'.eng', filter:'.del', preventOnFilter:false, onEnd(){ S.engineOrder = [...$('engines').querySelectorAll('.eng')].map(c => c.dataset.id); save(); } });
 SO.cats = mkSort($('cats'), { draggable:'.cat', handle:'h3', filter:'.ib', preventOnFilter:false, onEnd(){

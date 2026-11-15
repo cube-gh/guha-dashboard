@@ -1,5 +1,5 @@
 {
-  "engine": "naver",
+  "engine": "news",
   "cats": [
     {
       "name": "종합",
@@ -87,7 +87,44 @@
     },
     {
       "name": "음악·사진·동영상",
-      "sites": []
+      "sites": [
+        {
+          "name": "스포티파이",
+          "url": "https://open.spotify.com/intl-ko/"
+        },
+        {
+          "name": "까칠한클래식",
+          "url": "http://www.kkacl.com/md"
+        },
+        {
+          "name": "멜론",
+          "url": "https://www.melon.com/"
+        },
+        {
+          "name": "영화음악",
+          "url": "https://what-song.com/"
+        },
+        {
+          "name": "빌보드",
+          "url": "https://www.billboard.com/"
+        },
+        {
+          "name": "로링스톤",
+          "url": "https://www.rollingstone.com/"
+        },
+        {
+          "name": "M TV",
+          "url": "https://www.mtv.com/"
+        },
+        {
+          "name": "피치포크",
+          "url": "https://pitchfork.com/"
+        },
+        {
+          "name": "NME",
+          "url": "https://www.nme.com/home"
+        }
+      ]
     },
     {
       "name": "목공·공예",
@@ -248,8 +285,15 @@
         "url": "https://smartstore.naver.com/thesmallroom1984"
       },
       {
+        "sep": true
+      },
+      {
         "name": "유튜브",
         "url": "https://www.youtube.com"
+      },
+      {
+        "name": "인스타그램",
+        "url": "https://www.instagram.com/"
       },
       {
         "name": "스포티파이",
@@ -409,6 +453,6 @@
     "scholar",
     "riss"
   ],
-  "rev": 1794709545927,
+  "rev": 1794710382747,
   "engineEdits": {}
 }
