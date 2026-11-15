@@ -346,6 +346,13 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
 .t10-line a b{font-size:11px;font-weight:700;color:var(--accent-strong);font-variant-numeric:tabular-nums}
 .t10-line a:hover span{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 @media (max-width:600px){.t10-line{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;padding-bottom:2px}.t10-line::-webkit-scrollbar{display:none}}
+/* 히든 즐겨찾기: 왼쪽에서 나오는 슬라이드 창 */
+.spanel.left{left:0;right:auto;border-left:none;border-right:1px solid var(--line);box-shadow:10px 0 40px rgba(90,70,110,.12);transform:translateX(-105%)}
+.spanel.left.open{transform:none}
+.hkey{cursor:default}
+.hp-add{flex-wrap:wrap}
+.hp-add input{flex:1 1 100%}
+.hp-add #hpName{flex:1 1 40%}.hp-add #hpUrl{flex:1 1 40%}
 </style>
 </head>
 <body class="locked">
@@ -424,9 +431,15 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
   </div>
   <nav class="dock r" id="dock1" aria-label="오른쪽 바로가기"><div class="dock-items"></div><button class="dadd edit-only" title="아이콘 추가">+</button><button class="dadd dsepadd edit-only" title="구분선 추가"><i></i></button></nav>
   </div>
-  <footer class="foot">2026.11 Editor by <b>GUHA</b></footer>
+  <footer class="foot">2026.11 Editor by <b>GU<span class="hkey" id="hiddenKey">H</span>A</b></footer>
 </div>
 <div class="sp-back" id="spBack"></div>
+<aside class="spanel left" id="hp" aria-label="히든 즐겨찾기">
+  <div class="sp-head"><h3>히든 즐겨찾기</h3><button class="ib" id="hpClose" title="닫기 (Esc)">✕</button></div>
+  <ul class="sp-list" id="hpList"></ul>
+  <form class="sp-add hp-add" id="hpAdd"><input id="hpName" placeholder="이름 (비우면 주소로)"><input id="hpUrl" placeholder="주소 (예: naver.com)" required><button class="btn pri">추가</button></form>
+  <div class="sp-tip">누르면 새 탭에서 열려요 · 끌어서 순서 변경 · × 삭제</div>
+</aside>
 <aside class="spanel" id="sp" aria-label="자주 쓰는 검색어 목록">
   <div class="sp-head"><h3>자주 쓰는 검색어</h3><button class="ib" id="spClose" title="닫기 (Esc)">✕</button></div>
   <ul class="sp-list" id="spList"></ul>
@@ -537,7 +550,7 @@ const DEFAULT = {
     [s('카카오맵','https://map.kakao.com'), s('파파고','https://papago.naver.com'), s('기상청 날씨','https://www.weather.go.kr'), s('비짓제주','https://www.visitjeju.net'), s('한국사DB','https://db.history.go.kr'), s('RISS 논문','https://www.riss.kr')]
   ]
 };
-function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; v.engineEdits ||= {}; return v; }
+function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; v.engineEdits ||= {}; v.hiddenFav ||= []; return v; }
 const ENGINES = [
   { id:'naver', home:'https://www.naver.com', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
   { id:'google', home:'https://www.google.com', name:'구글', url:'https://www.google.com/search?q=' },
@@ -1176,8 +1189,37 @@ $('spAdd').onsubmit = e => {
 };
 function openSaved(on){ $('sp').classList.toggle('open', on); $('spBack').classList.toggle('open', on); if (on){ $('spEng').value = S.engine; if (!$('spEng').value) $('spEng').selectedIndex = 0; } }
 $('savedOpen').onclick = () => openSaved(true);
-$('spClose').onclick = $('spBack').onclick = () => openSaved(false);
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('sp').classList.contains('open')) openSaved(false); });
+$('spClose').onclick = () => openSaved(false);
+$('spBack').onclick = () => { openSaved(false); openHidden(false); };
+/* 히든 즐겨찾기 (맨 아래 'GUHA'의 H를 누르면 열림) */
+function renderHidden(){
+  const ul = $('hpList'); ul.innerHTML = '';
+  if (!S.hiddenFav.length){ ul.append(el('li', 'sp-empty', '아래에서 나만 보는 즐겨찾기를 추가해 보세요.')); return; }
+  S.hiddenFav.forEach((st, i) => {
+    const li = el('li'); li.dataset.i = i;
+    const b = el('button', 'sp-item'); b.type = 'button'; b.title = st.url;
+    const img = el('img'); img.src = fav(st.url); img.alt = ''; img.draggable = false; img.onerror = () => img.style.visibility = 'hidden';
+    b.append(img, el('span', 'q', st.name), el('span', 'go', '↗'));
+    b.onclick = () => window.open(st.url, '_blank', 'noopener');
+    const x = el('button', 'x', '×'); x.type = 'button'; x.title = '삭제';
+    x.onclick = () => { if (!confirm(`'${st.name}'을(를) 지울까요?`)) return; S.hiddenFav.splice(i, 1); bump(); renderHidden(); };
+    li.append(b, x); ul.append(li);
+  });
+}
+function openHidden(on){ $('hp').classList.toggle('open', on); $('spBack').classList.toggle('open', on || $('sp').classList.contains('open')); if (on) renderHidden(); }
+$('hiddenKey').onclick = () => openHidden(true);
+$('hpClose').onclick = () => openHidden(false);
+$('hpAdd').onsubmit = e => {
+  e.preventDefault();
+  let url = $('hpUrl').value.trim(); if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  let name = $('hpName').value.trim();
+  if (!name){ try{ name = new URL(url).hostname.replace(/^www\./, ''); }catch(err){ name = url; } }
+  S.hiddenFav.push({ name, url }); $('hpName').value = ''; $('hpUrl').value = ''; bump(); renderHidden();
+};
+SO.hidden = mkSort($('hpList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
+  const old = S.hiddenFav; S.hiddenFav = [...$('hpList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderHidden(); } });
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if ($('sp').classList.contains('open')) openSaved(false); if ($('hp').classList.contains('open')) openHidden(false); });
 SO.saved = mkSort($('spList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
   const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderSaved(); } });
 

@@ -453,6 +453,32 @@
     "scholar",
     "riss"
   ],
-  "rev": 1794719584845,
-  "engineEdits": {}
+  "rev": 1794726660755,
+  "engineEdits": {},
+  "hiddenFav": [
+    {
+      "name": "동행",
+      "url": "https://www.dhlottery.co.kr/"
+    },
+    {
+      "name": "빗썸",
+      "url": "https://www.bithumb.com/react/"
+    },
+    {
+      "name": "베트맨",
+      "url": "https://www.betman.co.kr/"
+    },
+    {
+      "name": "축구",
+      "url": "https://www.fotmob.com/ko"
+    },
+    {
+      "name": "바이낸스",
+      "url": "https://www.binance.me/en"
+    },
+    {
+      "name": "닌자TV",
+      "url": "https://njtv-01.com/"
+    }
+  ]
 }
