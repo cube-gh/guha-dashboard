@@ -536,7 +536,7 @@ const DEFAULT = {
     { name: '역사·인문', q: '역사학 OR 철학 OR 인문학' }
   ],
   topics2: [
-    { name: '주요 헤드라인', q: '' },
+    { name: '주요뉴스', q: '' },
     { name: '경제', q: '경제 OR 증시 OR 환율' },
     { name: '교육', q: '교육부 OR 학교 OR 교사' },
     { name: '문화·전시', q: '전시회 OR 공연 OR 문화행사' }
@@ -550,7 +550,7 @@ const DEFAULT = {
     [s('카카오맵','https://map.kakao.com'), s('파파고','https://papago.naver.com'), s('기상청 날씨','https://www.weather.go.kr'), s('비짓제주','https://www.visitjeju.net'), s('한국사DB','https://db.history.go.kr'), s('RISS 논문','https://www.riss.kr')]
   ]
 };
-function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; v.engineEdits ||= {}; v.hiddenFav ||= []; return v; }
+function fill(v){ const c = x => JSON.parse(JSON.stringify(x)); v.topics ||= c(DEFAULT.topics); v.topics2 ||= c(DEFAULT.topics2); v.newsTitles ||= c(DEFAULT.newsTitles); v.docks ||= c(DEFAULT.docks); v.rotate ||= [3, 3]; v.saved ||= c(DEFAULT.saved); v.customEngines ||= []; v.hiddenEngines ||= []; v.engineEdits ||= {}; v.hiddenFav ||= []; [v.topics, v.topics2].forEach(L => L.forEach(x => { if (x.name === '주요 헤드라인') x.name = '주요뉴스'; })); return v; }
 const ENGINES = [
   { id:'naver', home:'https://www.naver.com', name:'네이버', url:'https://search.naver.com/search.naver?query=' },
   { id:'google', home:'https://www.google.com', name:'구글', url:'https://www.google.com/search?q=' },
@@ -978,7 +978,7 @@ function renderTopics(P){
   P.idx = Math.min(P.idx, Math.max(0, list.length - 1));
   q1(P, '.ntitle').textContent = S.newsTitles[P.k];
   list.forEach((t, i) => {
-    const b = el('button', 'chip topic' + (i === P.idx ? ' on' : ''), t.name); b.type = 'button'; b.dataset.i = i; b.title = t.q ? (isFeed(t.q) ? 'RSS: ' : '검색어: ') + t.q : '주요 헤드라인 (연합뉴스)';
+    const b = el('button', 'chip topic' + (i === P.idx ? ' on' : ''), t.name); b.type = 'button'; b.dataset.i = i; b.title = t.q ? (isFeed(t.q) ? 'RSS: ' : '검색어: ') + t.q : '주요뉴스 (연합뉴스)';
     const d = el('span', 'del', '×');
     d.onclick = ev => { ev.stopPropagation(); if (confirm(`'${t.name}' 주제를 지울까요?`)){ list.splice(i, 1); P.idx = 0; save(); renderTopics(P); loadNews(P); } };
     b.append(d);
@@ -988,7 +988,7 @@ function renderTopics(P){
   const add = el('button', 'chip edit-only', '+ 주제'); add.type = 'button';
   add.onclick = () => {
     const name = prompt('주제 이름 (예: 교육)'); if (!name || !name.trim()) return;
-    const q = prompt('검색어 (여러 개는 OR 로 연결, 예: 교육부 OR 고교학점제)\n비워 두면 주요 헤드라인(연합뉴스), RSS 주소를 넣으면 그 피드가 나와요.', name.trim()); if (q === null) return;
+    const q = prompt('검색어 (여러 개는 OR 로 연결, 예: 교육부 OR 고교학점제)\n비워 두면 주요뉴스(연합뉴스), RSS 주소를 넣으면 그 피드가 나와요.', name.trim()); if (q === null) return;
     list.push({ name:name.trim(), q:q.trim() }); P.idx = list.length - 1; save(); renderTopics(P); loadNews(P);
   };
   box.append(add);
