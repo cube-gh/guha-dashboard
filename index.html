@@ -1217,10 +1217,10 @@ $('hpAdd').onsubmit = e => {
   if (!name){ try{ name = new URL(url).hostname.replace(/^www\./, ''); }catch(err){ name = url; } }
   S.hiddenFav.push({ name, url }); $('hpName').value = ''; $('hpUrl').value = ''; bump(); renderHidden();
 };
-SO.hidden = mkSort($('hpList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
+SO.hidden = mkSort($('hpList'), { disabled:false, delay:300, delayOnTouchOnly:true, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
   const old = S.hiddenFav; S.hiddenFav = [...$('hpList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderHidden(); } });
 document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if ($('sp').classList.contains('open')) openSaved(false); if ($('hp').classList.contains('open')) openHidden(false); });
-SO.saved = mkSort($('spList'), { disabled:false, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
+SO.saved = mkSort($('spList'), { disabled:false, delay:300, delayOnTouchOnly:true, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
   const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderSaved(); } });
 
 function renderAll(){ renderEngines(); renderCats(); renderDocks(); renderSaved(); PANELS.forEach(P => { renderTopics(P); loadNews(P); }); }
@@ -1244,6 +1244,32 @@ async function loadTop10(){
 }
 loadTop10();
 
+/* 휴대폰: 슬라이드 창을 손가락으로 쓸어서 닫기 (오른쪽 창은 오른쪽으로, 왼쪽 창은 왼쪽으로) */
+function swipeToClose(panel, dir, close){
+  let x0 = 0, y0 = 0, dx = 0, t0 = 0, mode = '';
+  panel.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; t0 = Date.now(); mode = '';
+  }, { passive:true });
+  panel.addEventListener('touchmove', e => {
+    if (!x0 || document.querySelector('.sortable-chosen')) return;
+    const mx = e.touches[0].clientX - x0, my = e.touches[0].clientY - y0;
+    if (!mode){ if (Math.abs(mx) < 8 && Math.abs(my) < 8) return; mode = Math.abs(mx) > Math.abs(my) * 1.2 ? 'x' : 'y'; }
+    if (mode !== 'x') return;
+    dx = dir > 0 ? Math.max(0, mx) : Math.min(0, mx);
+    panel.style.transition = 'none'; panel.style.transform = `translateX(${dx}px)`;
+  }, { passive:true });
+  panel.addEventListener('touchend', () => {
+    if (mode === 'x'){
+      const fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.5;
+      panel.style.transition = ''; panel.style.transform = '';
+      if (Math.abs(dx) > panel.offsetWidth * 0.3 || (fast && Math.abs(dx) > 40)) close();
+    }
+    x0 = 0; mode = '';
+  });
+}
+swipeToClose($('sp'), 1, () => openSaved(false));
+swipeToClose($('hp'), -1, () => openHidden(false));
 syncFromServer();
 SO.eng = mkSort($('engines'), { draggable:'.eng', filter:'.del', preventOnFilter:false, onEnd(){ S.engineOrder = [...$('engines').querySelectorAll('.eng')].map(c => c.dataset.id); save(); } });
 SO.cats = mkSort($('cats'), { draggable:'.cat', handle:'h3', filter:'.ib', preventOnFilter:false, onEnd(){
