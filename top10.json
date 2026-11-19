@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-19",
+  "date": "2026-11-20",
   "source": "Tranco (tranco-list.eu) · 주요 웹사이트 후보 중 순위",
   "sites": [
     {
@@ -42,18 +42,18 @@
       "rank": 7,
       "domain": "mail.ru",
       "name": "Mail.ru",
-      "tranco": 26
+      "tranco": 25
     },
     {
       "rank": 8,
-      "domain": "amazon.com",
-      "name": "Amazon",
+      "domain": "office.com",
+      "name": "Microsoft 365",
       "tranco": 28
     },
     {
       "rank": 9,
-      "domain": "office.com",
-      "name": "Microsoft 365",
+      "domain": "amazon.com",
+      "name": "Amazon",
       "tranco": 29
     },
     {
