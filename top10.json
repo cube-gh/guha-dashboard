@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-21",
+  "date": "2026-11-22",
   "source": "Tranco (tranco-list.eu) · 주요 웹사이트 후보 중 순위",
   "sites": [
     {
@@ -12,7 +12,7 @@
       "rank": 2,
       "domain": "facebook.com",
       "name": "Facebook",
-      "tranco": 5
+      "tranco": 4
     },
     {
       "rank": 3,
@@ -24,7 +24,7 @@
       "rank": 4,
       "domain": "instagram.com",
       "name": "Instagram",
-      "tranco": 14
+      "tranco": 13
     },
     {
       "rank": 5,
@@ -48,19 +48,19 @@
       "rank": 8,
       "domain": "office.com",
       "name": "Microsoft 365",
-      "tranco": 27
+      "tranco": 26
     },
     {
       "rank": 9,
       "domain": "amazon.com",
       "name": "Amazon",
-      "tranco": 29
+      "tranco": 28
     },
     {
       "rank": 10,
       "domain": "github.com",
       "name": "GitHub",
-      "tranco": 34
+      "tranco": 35
     }
   ]
 }
