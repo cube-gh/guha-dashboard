@@ -1,5 +1,5 @@
 {
-  "engine": "cmw2v06tf",
+  "engine": "google",
   "cats": [
     {
       "name": "종합",
@@ -192,6 +192,38 @@
           "url": "https://cube-gh.github.io/historyclass/"
         }
       ]
+    },
+    {
+      "name": "깃허브 사이트 모음",
+      "sites": [
+        {
+          "name": "필사를 위한 시선",
+          "url": "https://cube-gh.github.io/sisup/"
+        },
+        {
+          "name": "역사교실 자료실",
+          "url": "https://cube-gh.github.io/historyclass/"
+        },
+        {
+          "name": "주역기초 해설 ppt",
+          "url": "https://cube-gh.github.io/juyeok/"
+        },
+        {
+          "sep": true
+        },
+        {
+          "name": "구하 즐겨찾기",
+          "url": "https://cube-gh.github.io/guha-dashboard/"
+        },
+        {
+          "name": "새롬 행사 캘린더",
+          "url": "https://cube-gh.github.io/jeju-saerom/"
+        },
+        {
+          "name": "거래처 연락처",
+          "url": "https://cube-gh.github.io/partners/"
+        }
+      ]
     }
   ],
   "topics": [
@@ -235,7 +267,7 @@
   ],
   "topics2": [
     {
-      "name": "주요 헤드라인",
+      "name": "주요뉴스",
       "q": ""
     },
     {
@@ -453,7 +485,7 @@
     "scholar",
     "riss"
   ],
-  "rev": 1794726660755,
+  "rev": 1795315687472,
   "engineEdits": {},
   "hiddenFav": [
     {
