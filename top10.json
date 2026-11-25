@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-25",
+  "date": "2026-11-26",
   "source": "Tranco (tranco-list.eu) · 주요 웹사이트 후보 중 순위",
   "sites": [
     {
@@ -60,7 +60,7 @@
       "rank": 10,
       "domain": "github.com",
       "name": "GitHub",
-      "tranco": 35
+      "tranco": 34
     }
   ]
 }
