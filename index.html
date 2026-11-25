@@ -353,6 +353,10 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
 .hp-add{flex-wrap:wrap}
 .hp-add input{flex:1 1 100%}
 .hp-add #hpName{flex:1 1 40%}.hp-add #hpUrl{flex:1 1 40%}
+.btn.unsaved{position:relative}
+.btn.unsaved::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#e0555a;box-shadow:0 0 0 2px var(--card)}
+.savebar{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 16px}
+.savebar .btn{padding:5px 12px;font-size:12px}
 </style>
 </head>
 <body class="locked">
@@ -386,6 +390,7 @@ body,.card,.search,.btn,.chip{transition:background-color .3s,color .3s,border-c
     </a>
     <div class="toolbar">
       <div class="when"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div>
+      <button class="btn edit-only" id="pickBtn" type="button" title="저장할 파일을 다시 골라요">저장 위치</button>
       <button class="btn" id="editBtn">편집</button>
       <button class="btn themebtn" id="themeBtn" type="button" title="밤·낮 화면 바꾸기" aria-label="밤·낮 화면 바꾸기"><span class="sun">☀</span><span class="moon">☾</span></button>
     </div>
@@ -906,24 +911,48 @@ const idb = (() => {
   const run = (mode, fn) => open().then(db => new Promise((res, rej) => { const tx = db.transaction('kv', mode); const q = fn(tx.objectStore('kv')); tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); }));
   return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)) };
 })();
-async function saveToFile(){
+/* 파일 저장: pick=true면 저장 위치를 새로 고름. 성공하면 파일 이름, 못 하면 null */
+async function saveToFile(pick, silent){
   if (!window.showSaveFilePicker) return null;
   const json = JSON.stringify(S, null, 2);
-  let h = null; try{ h = await idb.get('backupHandle'); }catch(e){}
+  let h = null; if (!pick){ try{ h = await idb.get('backupHandle'); }catch(e){} }
   try{
     if (h){
       let perm = await h.queryPermission({ mode:'readwrite' });
-      if (perm !== 'granted') perm = await h.requestPermission({ mode:'readwrite' });
-      if (perm !== 'granted') h = null;
+      if (perm !== 'granted' && !silent) perm = await h.requestPermission({ mode:'readwrite' });
+      if (perm !== 'granted'){ if (silent) return null; h = null; }
     }
     if (!h){
-      toast('처음 한 번만: C:\\004_dash_board 폴더에 dashboard-backup.json으로 저장해 주세요', 4000);
+      if (silent) return null;
+      toast('C:\\004_dash_board 폴더에 dashboard-backup.json으로 저장해 주세요', 4000);
       h = await showSaveFilePicker({ ...BK_PICK, suggestedName:'dashboard-backup.json' });
       try{ await idb.set('backupHandle', h); }catch(e){}
     }
     const w = await h.createWritable(); await w.write(json); await w.close();
+    setUnsaved(false);
     return h.name;
   }catch(err){ return null; }
+}
+/* 파일에 아직 안 들어간 변경이 있으면 편집 버튼에 작은 빨간 점 표시 */
+function setUnsaved(on){
+  try{ on ? localStorage.setItem('myDash.unsaved', '1') : localStorage.removeItem('myDash.unsaved'); }catch(e){}
+  $('editBtn').classList.toggle('unsaved', !!on);
+  $('editBtn').title = on ? '파일(dashboard-backup.json)에 아직 저장 안 된 변경이 있어요 · 편집 → 완료로 저장' : '';
+}
+let fileSaveTimer = 0;
+function changed(){ // 편집 모드 밖에서 바뀐 것(자주 쓰는 검색어, 히든 즐겨찾기)도 파일에 자동 저장
+  bump(); setUnsaved(true);
+  clearTimeout(fileSaveTimer);
+  fileSaveTimer = setTimeout(() => saveToFile(false, true), 1200);
+}
+function offerSave(){ // 자동 저장이 안 됐을 때, 누르면 바로 저장되는 알림
+  document.querySelectorAll('.savebar').forEach(x => x.remove());
+  const d = el('div', 'toast show savebar');
+  d.append(el('span', null, '파일에 저장하지 못했어요.'));
+  const b = el('button', 'btn pri', '지금 파일로 저장');
+  b.onclick = async () => { const n = await saveToFile(true); d.remove(); toast(n ? `저장했어요 · ${n}` : '저장을 취소했어요'); };
+  const x = el('button', 'btn', '닫기'); x.onclick = () => d.remove();
+  d.append(b, x); document.body.append(d);
 }
 
 /* 밤·낮 화면 바꾸기: 지금 보이는 반대 모드로 바꾸고 이 기기에 기억 */
@@ -941,10 +970,13 @@ $('editBtn').onclick = async () => {
   $('editBtn').textContent = on ? '완료' : '편집'; $('editBtn').classList.toggle('pri', on);
   [SO.eng, SO.cats, SO.dock0, SO.dock1, ...PANELS.map(P => P.so)].forEach(x => x && x.option('disabled', !on)); renderCats();
   if (on) return;
-  bump();
+  bump(); setUnsaved(true);
   const name = await saveToFile();
-  toast(name ? `저장했어요 · ${name} 을(를) 깃허브에 올리면 휴대폰에도 반영돼요` : '이 기기에 저장했어요', name ? 4200 : 2200);
+  if (name) toast(`저장했어요 · ${name} — 깃허브에 올리면 휴대폰에도 반영돼요`, 4500);
+  else if (window.showSaveFilePicker) offerSave();
+  else toast('이 기기에 저장했어요 (휴대폰·사파리는 파일 저장이 안 돼요)', 3000);
 };
+try{ if (localStorage.getItem('myDash.unsaved')) setUnsaved(true); }catch(e){}
 let lastSync = 0;
 async function syncFromServer(){
   if (Date.now() - lastSync < 60000 || isEdit()) return;
@@ -1177,7 +1209,7 @@ function renderSaved(){
     b.append(img, el('span', 'eng', en.name + '에서'), el('span', 'q', it.q), el('span', 'go', '↗'));
     b.onclick = () => window.open(engUrl(en, it.q), '_blank', 'noopener');
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = '삭제';
-    x.onclick = () => { S.saved.splice(i, 1); bump(); renderSaved(); };
+    x.onclick = () => { S.saved.splice(i, 1); changed(); renderSaved(); };
     li.append(b, x); ul.append(li);
   });
 }
@@ -1185,7 +1217,7 @@ function refreshSpEng(){ const sel = $('spEng'), v = sel.value; sel.innerHTML = 
 refreshSpEng();
 $('spAdd').onsubmit = e => {
   e.preventDefault(); const q = $('spQ').value.trim(); if (!q) return;
-  S.saved.push({ e: $('spEng').value, q }); $('spQ').value = ''; bump(); renderSaved();
+  S.saved.push({ e: $('spEng').value, q }); $('spQ').value = ''; changed(); renderSaved();
 };
 function openSaved(on){ $('sp').classList.toggle('open', on); $('spBack').classList.toggle('open', on); if (on){ $('spEng').value = S.engine; if (!$('spEng').value) $('spEng').selectedIndex = 0; } }
 $('savedOpen').onclick = () => openSaved(true);
@@ -1202,11 +1234,12 @@ function renderHidden(){
     b.append(img, el('span', 'q', st.name), el('span', 'go', '↗'));
     b.onclick = () => window.open(st.url, '_blank', 'noopener');
     const x = el('button', 'x', '×'); x.type = 'button'; x.title = '삭제';
-    x.onclick = () => { if (!confirm(`'${st.name}'을(를) 지울까요?`)) return; S.hiddenFav.splice(i, 1); bump(); renderHidden(); };
+    x.onclick = () => { if (!confirm(`'${st.name}'을(를) 지울까요?`)) return; S.hiddenFav.splice(i, 1); changed(); renderHidden(); };
     li.append(b, x); ul.append(li);
   });
 }
 function openHidden(on){ $('hp').classList.toggle('open', on); $('spBack').classList.toggle('open', on || $('sp').classList.contains('open')); if (on) renderHidden(); }
+$('pickBtn').onclick = async () => { const n = await saveToFile(true); toast(n ? `이제 이 파일에 저장해요 · ${n}` : '저장 위치 고르기를 취소했어요'); };
 $('hiddenKey').onclick = () => openHidden(true);
 $('hpClose').onclick = () => openHidden(false);
 $('hpAdd').onsubmit = e => {
@@ -1215,13 +1248,13 @@ $('hpAdd').onsubmit = e => {
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
   let name = $('hpName').value.trim();
   if (!name){ try{ name = new URL(url).hostname.replace(/^www\./, ''); }catch(err){ name = url; } }
-  S.hiddenFav.push({ name, url }); $('hpName').value = ''; $('hpUrl').value = ''; bump(); renderHidden();
+  S.hiddenFav.push({ name, url }); $('hpName').value = ''; $('hpUrl').value = ''; changed(); renderHidden();
 };
 SO.hidden = mkSort($('hpList'), { disabled:false, delay:300, delayOnTouchOnly:true, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
-  const old = S.hiddenFav; S.hiddenFav = [...$('hpList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderHidden(); } });
+  const old = S.hiddenFav; S.hiddenFav = [...$('hpList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); changed(); renderHidden(); } });
 document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if ($('sp').classList.contains('open')) openSaved(false); if ($('hp').classList.contains('open')) openHidden(false); });
 SO.saved = mkSort($('spList'), { disabled:false, delay:300, delayOnTouchOnly:true, filter:'.x, .sp-empty', preventOnFilter:false, onEnd(){
-  const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); bump(); renderSaved(); } });
+  const old = S.saved; S.saved = [...$('spList').querySelectorAll('li[data-i]')].map(li => old[+li.dataset.i]); changed(); renderSaved(); } });
 
 function renderAll(){ renderEngines(); renderCats(); renderDocks(); renderSaved(); PANELS.forEach(P => { renderTopics(P); loadNews(P); }); }
 renderAll();
