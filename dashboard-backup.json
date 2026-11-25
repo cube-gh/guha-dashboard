@@ -190,6 +190,10 @@
         {
           "name": "역사교실 자료실",
           "url": "https://cube-gh.github.io/historyclass/"
+        },
+        {
+          "name": "예측보드",
+          "url": "https://claude.ai/artifact/NKz9eDCZJxkLDmMZCzEYD1"
         }
       ]
     },
@@ -228,20 +232,20 @@
   ],
   "topics": [
     {
-      "name": "제주",
-      "q": "제주도"
-    },
-    {
-      "name": "여행·관광",
-      "q": "여행업계 OR 관광업계"
-    },
-    {
       "name": "IT·AI",
       "q": "인공지능 OR 생성형AI"
     },
     {
       "name": "정치·경제",
       "q": "정치·경제"
+    },
+    {
+      "name": "여행·관광",
+      "q": "여행업계 OR 관광업계"
+    },
+    {
+      "name": "제주",
+      "q": "제주도"
     },
     {
       "name": "스포츠",
@@ -271,16 +275,16 @@
       "q": ""
     },
     {
+      "name": "문화·전시",
+      "q": "전시회 OR 공연 OR 문화행사"
+    },
+    {
       "name": "경제",
       "q": "경제 OR 증시 OR 환율"
     },
     {
       "name": "교육",
       "q": "교육부 OR 학교 OR 교사"
-    },
-    {
-      "name": "문화·전시",
-      "q": "전시회 OR 공연 OR 문화행사"
     },
     {
       "name": "영화",
@@ -485,7 +489,7 @@
     "scholar",
     "riss"
   ],
-  "rev": 1795315687472,
+  "rev": 1795588870762,
   "engineEdits": {},
   "hiddenFav": [
     {
@@ -511,6 +515,10 @@
     {
       "name": "닌자TV",
       "url": "https://njtv-01.com/"
+    },
+    {
+      "name": "예측 보드",
+      "url": "https://claude.ai/artifact/NKz9eDCZJxkLDmMZCzEYD1"
     }
   ]
 }
